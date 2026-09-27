@@ -1,0 +1,49 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Testing / tooling caches ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Reference papers (fetched by scripts/download_papers.py; redistribution rights vary) ---
+papers/*.pdf
+
+# --- Data: raw/processed corpora are downloaded or generated, not committed ---
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# --- Training artifacts ---
+checkpoints/*
+!checkpoints/.gitkeep
+*.npz
+*.npy
+*.pkl
+
+# --- Experiment run outputs (configs and summaries ARE committed) ---
+experiments/**/runs/
+experiments/**/*.log
