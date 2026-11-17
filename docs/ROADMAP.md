@@ -69,7 +69,7 @@ Study notes: [`02_nn_foundations.md`](02_nn_foundations.md)
 
 ---
 
-## Phase 3: Tokenization
+## Phase 3: Tokenization ✅
 
 - Character-level tokenizer (encode/decode, special tokens, `<unk>`)
 - Save/load vocab in `data/tokenizer/`
@@ -77,6 +77,8 @@ Study notes: [`02_nn_foundations.md`](02_nn_foundations.md)
 - BPE comes later, after the model trains end to end
 
 **Exit:** `decode(encode(s)) == s` for in-vocab text; dataset stats recorded.
+
+Study notes: [`03_tokenization.md`](03_tokenization.md)
 
 ---
 

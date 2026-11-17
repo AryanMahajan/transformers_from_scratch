@@ -69,6 +69,7 @@ ids [B,T]
 | 7 | GPT-2 init: N(0, 0.02²), residual projections 0.02/√(2N) | Matches Pre-LN; logits ≈ 0 at init so step-0 loss ≈ log V. |
 | 8 | Embedding backward uses `np.add.at` | Buffered fancy-index `+=` drops repeated ids silently. |
 | 9 | LayerNorm uses two-pass variance, ε = 1e-5, biased var | `E[x²]−μ²` cancels catastrophically in float32; matches GPT-2/PyTorch. |
+| 10 | Dataset: Tiny Shakespeare, contiguous 90/10 split, vocab from train only | Public domain, standard baselines; contiguous split avoids window leakage. |
 
 ## 5. Reproducibility
 

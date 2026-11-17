@@ -22,8 +22,8 @@ attempt at a state-of-the-art LLM.
 | 0 | Project setup, environment, papers | ✅ done |
 | 1 | Numerical foundations (Softmax, LogSoftmax, GELU, cross-entropy) | ✅ done |
 | 2 | NN foundations (Parameter, Module, Linear, Embedding, LayerNorm) | ✅ done |
-| 3 | Tokenization (char-level → BPE) | ⏳ next |
-| 4 | Attention (causal mask, scaled dot-product, multi-head) | ⬜ |
+| 3 | Tokenization (char-level → BPE) | ✅ done |
+| 4 | Attention (causal mask, scaled dot-product, multi-head) | ⏳ next |
 | 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ⬜ |
 | 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ⬜ |
 | 7 | Real corpus, checkpointing, generation, evaluation | ⬜ |
@@ -43,6 +43,7 @@ python -m venv .venv
 pip install -r requirements-dev.txt
 
 python scripts/download_papers.py   # fetch reference PDFs into papers/
+python scripts/prepare_data.py      # download + split + tokenize Tiny Shakespeare
 pytest                              # run the test suite
 ```
 

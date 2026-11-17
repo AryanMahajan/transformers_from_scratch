@@ -75,6 +75,56 @@ perplexity) when comparing models in Phase 8.
 
 ---
 
+## 2. Dataset: Tiny Shakespeare (`scripts/prepare_data.py`, `src/training/dataset.py`)
+
+### Card
+| Field | Value |
+|---|---|
+| Source | Karpathy's char-rnn `input.txt`: about 40k lines from Shakespeare's plays, concatenated |
+| Licence | Public domain (Shakespeare) |
+| SHA-256 | `86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed` |
+| Size | 1,115,394 bytes = 1,115,394 chars (pure ASCII) · 40,000 lines · 202,651 words |
+| Split | contiguous 90/10: **train 1,003,854** chars · **val 111,540** chars |
+| Tokenizer | char-level, vocab built on **train only**: 65 chars + `<unk>` = **V = 66** |
+| Val chars unseen in train | none (`<unk>` count in val = 0) |
+| Most frequent | `' '` 153,275 · `e` 85,496 · `t` 60,384 · `o` 59,521 · `a` 49,718 |
+
+Re-create everything with `python scripts/prepare_data.py`. Stats are written
+to `data/processed/meta.json`.
+
+### Baselines to beat (bits per character)
+| Model | bpc | loss (nats) |
+|---|---|---|
+| Uniform over V = 66 | **6.04** | 4.19 (= log 66, the expected step-0 loss) |
+| Unigram (char frequencies, no context) | **4.77** | 3.31 |
+| Small char Transformers on this data (literature, roughly) | ~1.5 | ~1.0 |
+
+Anything **below 4.77 bpc** means the model is using **context**, not just
+letter frequencies. The gap between the unigram and our model is what the
+architecture contributes.
+
+### Design decisions
+- **Contiguous split.** Training windows are T consecutive chars. A random
+  char or line split would put val text inside train windows (leakage, so
+  the val loss would be optimistic). One cut means at most T chars of
+  context at the seam.
+- **Vocab from train only.** It treats val as truly unseen, like fitting a
+  normaliser on train only. (nanoGPT builds it on the full text, which is
+  slightly leaky.) The script reports unseen val chars: there are 0 here.
+- **SHA-256 recorded** so others can check they have the identical file.
+- **Committed:** the tokenizer JSON (small, and it pins the ids checkpoints
+  depend on). **Not committed:** the raw text and `.npy` files (re-creatable).
+
+### Robust download
+- `raw.githubusercontent.com` **is blocked on some networks**, including
+  ours: TLS handshake failure. The script falls back to the jsDelivr CDN
+  mirror of the same GitHub file. Tested from a clean state, the SHA matches.
+- It writes to `.part`, checks the expected size, then **renames
+  atomically**. A failed download can never leave a truncated file that
+  later runs would skip as "already exists".
+
+---
+
 ## Self-check questions
 1. Which parts of the model does V affect, and how?
 2. Why does BPE let the same context length T "see" more text? Why does that matter for attention?
@@ -82,6 +132,10 @@ perplexity) when comparing models in Phase 8.
 4. What is the bpc of a uniform model with V = 65?
 5. Why sort the vocabulary?
 6. When does `decode(encode(s)) == s` fail for our char tokenizer?
+7. Why split contiguously rather than randomly? What leakage remains?
+8. Why build the vocab from the training split only?
+9. What do the 6.04 and 4.77 bpc baselines mean? What does beating 4.77 prove?
+10. Why write the download to `.part` and rename it?
 
 ---
 
