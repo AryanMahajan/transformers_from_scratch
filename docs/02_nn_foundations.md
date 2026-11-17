@@ -134,6 +134,49 @@ $y_{nj} = \sum_i x_{ni}W_{ij} + b_j$
 
 ---
 
+## 3. Embedding: `src/nn/embedding.py`
+
+### What it's for
+- Token embedding: ids `[B,T]` → `[B,T,D]`.
+- Learned positional embedding: the same class with `arange(T)`, broadcast over B.
+- Later, the tied LM head: `logits = h @ Eᵀ` reuses the same $E$, so both
+  gradient contributions **accumulate** (§1).
+
+### Forward = one-hot matmul, without building the one-hot
+$$\text{out}[n] = E[\text{ids}_n] \iff \text{out} = \text{onehot}(\text{ids})\cdot E$$
+
+Indexing costs O(N·D). The explicit one-hot matmul would cost O(N·V·D).
+
+### Backward: Linear's formula with x = one-hot
+$$dE = \text{onehot}(\text{ids})^\top\cdot\text{dout}\ \Rightarrow\ dE[v] = \sum_{n:\,\text{ids}_n=v}\text{dout}[n]$$
+
+- This is a **scatter-add**. Tokens absent from the batch get 0 gradient.
+- **There's no input gradient.** Ids are discrete, so `backward` returns
+  `None` and backprop stops here.
+
+### Trap 1: buffered fancy-index `+=` ⚠️
+`E.grad[ids] += dout` runs as `tmp = E.grad[ids] + dout; E.grad[ids] = tmp`.
+With repeated ids, **the last write wins** and the other contributions are
+lost. There's no error, only silently wrong gradients, and repeats are
+constant in real text. **Fix:** `np.add.at(E.grad, ids, dout)`, an unbuffered
+version where every occurrence adds. The NumPy docs give `a[[0,0]] += 1`
+(adds once) against `np.add.at(a, [0,0], 1)` (adds twice).
+
+### Trap 2: negative ids
+`E[-1]` silently returns the last row. The forward pass checks
+`0 ≤ ids < V` and integer dtype.
+
+### Tests (`tests/test_embedding.py`)
+- The lookup equals `onehot @ E`.
+- `check_module` with heavily repeated ids (measured: 9.2e-13).
+- Scatter-add sums all three occurrences, unused rows stay zero, and backward
+  returns `None`.
+- A demo of the buffered `+=` bug (gets 1.0 where it should be 3.0).
+- Rejects −1, V, and float ids.
+- Positional-embedding broadcast.
+
+---
+
 ## Self-check questions
 1. Why does `backward` accumulate into `grad` instead of assigning? Give a concrete case from our model.
 2. What goes wrong if `zero_grad()` is forgotten?
@@ -145,6 +188,10 @@ $y_{nj} = \sum_i x_{ni}W_{ij} + b_j$
 8. Why flatten to [B·T, D] in backward but not in forward?
 9. Why does training cost about 3× a forward pass?
 10. What does Linear cache, and why doesn't it need to cache W?
+11. Show that an embedding lookup equals onehot(ids)·E, and derive dE from Linear's dW.
+12. Why is `E.grad[ids] += dout` wrong? What exactly happens with repeated ids?
+13. Why does Embedding.backward return None?
+14. Why validate that ids ≥ 0?
 
 ---
 
@@ -153,4 +200,5 @@ $y_{nj} = \sum_i x_{ni}W_{ij} + b_j$
 |---|---|
 | A minimal Module/parameters/zero_grad design | Karpathy, micrograd `nn.py`: https://github.com/karpathy/micrograd/blob/master/micrograd/nn.py |
 | Linear-layer backprop with shapes | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (§4, matrix multiply): https://cs231n.stanford.edu/handouts/derivatives.pdf |
+| Unbuffered scatter-add | NumPy docs, `ufunc.at`: https://numpy.org/doc/stable/reference/generated/numpy.ufunc.at.html |
 | Manual backprop through layers | Karpathy, *Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |
