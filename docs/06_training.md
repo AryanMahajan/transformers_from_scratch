@@ -93,6 +93,74 @@ reduce capacity meaningfully. This is the same rule as nanoGPT/GPT-2.
 
 ---
 
+## 2. Gradient clipping and the LR schedule: `src/optim/clip.py`, `src/optim/schedule.py`
+
+### Global-norm clipping
+
+$$\|g\| = \sqrt{\textstyle\sum_{\text{all params}} \sum g^2},\qquad \text{if } \|g\| > c:\ g \leftarrow g\cdot\frac{c}{\|g\|}$$
+
+- **One factor for all parameters**: the update direction is unchanged, only
+  its length is capped. Per-tensor clipping would rescale tensors differently
+  and **rotate** the update (tested: cos < 0.99).
+- Returns the **pre-clip** norm. Log it: a norm spiking during training is
+  the earliest sign of instability.
+- The norm is summed in float64 (B·T·D-sized float32 sums lose digits).
+- Typical c = 1.0 (GPT-2/nanoGPT).
+
+### "Adam is scale-invariant, so why clip?"
+Clipping *every* step by the same factor would do nothing to Adam. But a single
+**spike** (one bad batch) is different:
+1. It enters m, so the spike step is large and points in a garbage
+   direction, and momentum carries it for ~10 steps.
+2. It enters v (scaled by g² = 10⁶×) and **stays there for ~1/(1−β₂) = 1000
+   steps**, so every later step is divided by a huge √v and **training
+   stalls**.
+
+**Measured** (one 1000× gradient at step 100, mean |step|):
+
+| | before spike | spike step | steps 201–400 |
+|---|---|---|---|
+| no clipping | 0.0018 | 0.0098 (5×) | **0.0001 (18× stalled)** |
+| clipping | 0.0018 | 0.0018 | 0.0019 |
+
+### Learning-rate schedule: warmup + cosine
+
+$$\text{lr}(s) = \begin{cases}\eta_\max\frac{s+1}{W} & s<W\[2pt]
+\eta_\min + \tfrac12(\eta_\max-\eta_\min)\left(1+\cos\pi\frac{s-W}{S-W}\right) & W\le s\le S\[2pt]
+\eta_\min & s > S\end{cases}$$
+
+- **Warmup (why, even with pre-LN):** in the first steps v̂ is estimated
+  from very few gradients, so Adam's per-parameter step size is high-variance
+  (Liu et al. 2019, RAdam). The initial gradients are also the largest, as the
+  model leaves its init. A short linear ramp lets the statistics settle before
+  full-size steps. Pre-LN makes warmup *less critical* (decision 1), not
+  useless.
+- **Cosine decay:** large steps early (fast progress), small steps late
+  (settle into a minimum instead of bouncing around it). Smooth, with no
+  step-schedule hyperparameters. It spends a long time near both ends.
+- **η_min ≈ η_max/10** (nanoGPT convention) so learning never fully stops.
+- **`s+1`** so step 0 already has lr > 0 (otherwise the first step is wasted).
+- Midpoint of the cosine = $(\eta_\max+\eta_\min)/2$ exactly (tested).
+
+### Order inside one training step
+```
+loss = forward → backward → norm = clip_grad_norm(...) → opt.lr = cosine_lr(step) → opt.step() → zero_grad
+```
+Clip **after** backward and **before** step: the optimizer must see the
+clipped gradients.
+
+### Tests (`tests/test_clip_schedule.py`)
+- Global norm = norm of all gradients concatenated.
+- Below threshold: bit-identical, returns the norm.
+- Above: norm = c, direction preserved, returns the pre-clip norm.
+- Per-tensor clipping would rotate the update; global doesn't.
+- Zero gradients safe.
+- **Spike experiment** (table above).
+- Warmup linear with lr(0) > 0; peak at W; midpoint, end and after-end values;
+  monotone decay ≥ η_min; validation.
+
+---
+
 ## Self-check questions
 1. Why does one SGD learning rate struggle with very different curvatures? What did the quadratic experiment show?
 2. Write the Adam update. What do m and v estimate, and over roughly how many steps?
@@ -101,6 +169,11 @@ reduce capacity meaningfully. This is the same rule as nanoGPT/GPT-2.
 5. Why is L2 regularisation inside Adam not the same as weight decay? Which weights does it under-regularise?
 6. Which parameters should not be decayed, and why?
 7. How much memory does Adam add? What must be saved to resume training exactly?
+8. Why clip the *global* norm instead of each tensor separately?
+9. Adam is invariant to gradient scale, so why does clipping still help it? Describe what one spike does to m and to v.
+10. Write the warmup + cosine schedule. Why warm up, even with pre-LN?
+11. Where in the training step does clipping go, and why there?
+12. Why log the pre-clip gradient norm?
 
 ---
 
@@ -108,4 +181,6 @@ reduce capacity meaningfully. This is the same rule as nanoGPT/GPT-2.
 | Topic | Source |
 |---|---|
 | Adam (algorithm + bias-correction derivation) | Kingma & Ba 2014, *Adam: A Method for Stochastic Optimization*: https://arxiv.org/abs/1412.6980 |
+| Gradient-norm clipping (original proposal) | Pascanu, Mikolov & Bengio 2012, *On the difficulty of training Recurrent Neural Networks*: https://arxiv.org/abs/1211.5063 |
+| Why warmup helps Adam (variance of the adaptive LR) | Liu et al. 2019, *On the Variance of the Adaptive Learning Rate and Beyond* (RAdam): https://arxiv.org/abs/1908.03265 |
 | AdamW (decoupled weight decay) | Loshchilov & Hutter 2017, *Decoupled Weight Decay Regularization*: https://arxiv.org/abs/1711.05101 |

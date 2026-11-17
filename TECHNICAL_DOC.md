@@ -75,6 +75,7 @@ ids [B,T]
 | 13 | Pre-LN blocks + final LN; grad-check blocks at std 0.4 | Untouched residual stream = clean gradient highway, no warmup needed. At std 0.02 some gradients are ~1e-4 and finite-difference noise dominates the relative error. |
 | 14 | Tied input/output embeddings by default (`tie_weights` flag) | Saves V·D params, standard in GPT-2; the gradient is the sum of both uses via `+=`. Implemented as a matmul with `tok_emb.E`, not a shared Parameter. |
 | 15 | AdamW with decoupled decay on matrices only (ndim ≥ 2) | L2-in-Adam divides the decay by √v (measured 4.4× uneven); decaying LayerNorm γ/biases is pointless. State keyed by parameter name for exact resume. |
+| 16 | Global-norm clipping (c = 1.0) + linear warmup → cosine to max_lr/10 | Clipping preserves direction and prevents the measured post-spike Adam stall (18×); warmup covers noisy early v̂ estimates. |
 
 ## 5. Reproducibility
 
