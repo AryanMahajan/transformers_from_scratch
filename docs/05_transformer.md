@@ -139,6 +139,85 @@ magnitudes before assuming a bug.
 
 ---
 
+## 3. The full model: `src/transformer/model.py`
+
+### Forward
+```
+ids [B,T]  (int)
+h = TokenEmb(ids) + Pos[:T]      [B,T,D]   sinusoidal buffer or learned Embedding(max_len, D)
+h = block_N(...block_1(h))       [B,T,D]
+h = LN_f(h)                      [B,T,D]   pre-LN never normalises the stream, so do it once here
+logits = h Eᵀ                    [B,T,V]   tied: the LM head IS the embedding matrix
+```
+Logits at position t score the token at t+1. The loss (Phase 1) is applied
+outside the model: `cross_entropy(logits[:, :-1], ids[:, 1:])` on a
+training window.
+
+### Weight tying
+Use the same $E\ [V,D]$ for the input lookup and the output projection.
+- **Intuition:** "which vector represents token v" and "which direction
+  predicts token v" should be similar. It also saves V·D parameters (Press &
+  Wolf 2017; GPT-2 does it).
+- **Gradient = sum of both uses** (multivariable chain rule):
+  $$\frac{\partial L}{\partial E} = \underbrace{dlogits^\top h}_{\text{LM head: } [V,D]} + \underbrace{\text{scatter-add of } dh_0 \text{ rows}}_{\text{embedding lookup}}$$
+  Our `Parameter.grad` accumulates with `+=`, so both contributions add
+  automatically. Phase 2's design pays off here. **Assigning (`=`) in either
+  place would silently drop one of them.**
+- The test builds an untied twin with `lm_head.W = Eᵀ`. The two compute the
+  same function, and the tied `E.grad` equals
+  `emb.E.grad + lm_head.W.gradᵀ` from the twin.
+- No `Parameter` is shared between modules here: the tied head is just a
+  matmul in `GPT.forward` using `tok_emb.E`. So the registry needs no dedup
+  for it (dedup still protects other sharing patterns).
+
+### Backward
+1. Tied head: `E.grad += dlogits2ᵀ @ h2`, then `dh = dlogits @ E`
+   (untied: `lm_head.backward`).
+2. `ln_f.backward`, then the blocks in **reverse** order.
+3. Learned positions: `pos_emb.backward(dh summed over the batch)`. Row t is
+   used by every sequence in the batch, so its gradients add.
+4. `tok_emb.backward(dh)`: scatter-add into `E.grad`, the second use of E.
+5. No input gradient: ids are discrete.
+
+### Initialisation
+- Embeddings and most weights: std 0.02.
+- `W_o` and `fc2` in **every** block: `gpt2_residual_std(N)` =
+  $0.02/\sqrt{2N}$. There are 2N residual writes, variances add, so this keeps
+  the stream's variance independent of depth (Phase 1 §7). Tested.
+- **Consequence: initial loss ≈ ln V.** Logits ≈ 0 means a uniform
+  prediction. Measured: **4.214 vs ln 66 = 4.190.** This is the first sanity
+  check of every training run (Phase 6). If the start is far above ln V, the
+  init is wrong.
+
+### Parameter counting
+$$N_\text{params} = \underbrace{VD}_{\text{tok emb}} + \underbrace{[T_\max D]}_{\text{learned pos}} + N(12D^2 + 12D) + \underbrace{2D}_{\text{LN}_f} + \underbrace{[VD]}_{\text{untied head}}$$
+
+Example: V = 66, D = 128, N = 4, sinusoidal, tied. Embeddings 8,448, blocks
+792,576, LN_f 256, **total 801,280.** The embedding is ~1%, so tying barely
+matters at char level. With BPE (V ≈ 50k) the embedding would dominate a model
+this size, and tying matters a lot.
+
+### Config (`GPTConfig`)
+`vocab_size, d_model, n_heads, n_layers, max_len, d_ff, pos, tie_weights`, as
+a dataclass with `to_dict()` (it will be saved in checkpoints in Phase 7). The
+`pos` and `n_heads/n_layers` fields are Experiments D and A–C.
+
+### Tests (`tests/test_model.py`)
+- Logits shape; parameter count matches the formula for all 4
+  {sinusoidal, learned} × {tied, untied} variants.
+- **Full-model gradient check (exit criterion):** every parameter (33–35
+  tensors), all variants, max error 6.4e-9 (weights at std 0.4, §2 gotcha).
+- **Full-model causality (exit criterion):** for every t, changing tokens
+  after t leaves logits ≤ t bit-identical and changes later ones.
+- Tied gradient = sum of both uses (untied-twin test).
+- Initial loss ≈ ln V.
+- One step of gradient descent lowers the loss (forward, loss and backward
+  all agree end to end).
+- Residual std used for `W_o`/`fc2` in every block.
+- Too-long input and unknown `pos` rejected.
+
+---
+
 ## Self-check questions
 1. Write the FFN forward and backward with shapes. Which forward value must be cached, and why?
 2. Why does the FFN need a non-linearity? What does it collapse to without one?
@@ -151,6 +230,12 @@ magnitudes before assuming a bug.
 9. Pre-LN vs post-LN: write both formulas. Why does pre-LN need a final LayerNorm, and why does post-LN need warmup?
 10. Count a block's parameters for D = 64.
 11. A grad check gives 6.7e-6 on one parameter whose gradient is ~2e-4. Bug or not? How do you tell?
+12. Write the model's forward with shapes from ids to logits. Which position's logits predict which token?
+13. Derive the tied-embedding gradient. What goes wrong if either use assigns `grad =` instead of `+=`?
+14. Why should the initial loss be ≈ ln V? What would a much larger initial loss tell you?
+15. Write the full parameter-count formula and evaluate it for V = 66, D = 128, N = 4.
+16. Why does the learned positional embedding's gradient sum over the batch?
+17. Why is the full-model gradient check done with weights at std 0.4 instead of 0.02?
 
 ---
 
@@ -159,4 +244,6 @@ magnitudes before assuming a bug.
 |---|---|
 | Residual connections (the original idea) | He et al. 2015, *Deep Residual Learning for Image Recognition*: https://arxiv.org/abs/1512.03385 |
 | Pre-LN vs post-LN analysis | Xiong et al. 2020, *On Layer Normalization in the Transformer Architecture*: https://arxiv.org/abs/2002.04745 |
+| Weight tying | Press & Wolf 2017, *Using the Output Embedding to Improve Language Models*: https://arxiv.org/abs/1608.05859 |
+| GPT-2 (pre-LN decoder, residual init, tying) | Radford et al. 2019, *Language Models are Unsupervised Multitask Learners*: https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf |
 | The original FFN definition (§3.3) | Vaswani et al. 2017: https://arxiv.org/abs/1706.03762 |

@@ -73,6 +73,7 @@ ids [B,T]
 | 11 | No key bias in attention (q, v, o keep theirs) | `q·(k+b)` shifts each score row by a constant; softmax ignores it, so the gradient is exactly 0. |
 | 12 | Sinusoidal positions as a fixed buffer, interleaved sin/cos, built in float64 | No parameters (identity backward); `PE[t+k]` is a rotation of `PE[t]`; a float64 master avoids f32→f64 casts carrying rounding error into grad checks. Learned positions (an `Embedding` over `arange(T)`) are the Experiment D alternative. |
 | 13 | Pre-LN blocks + final LN; grad-check blocks at std 0.4 | Untouched residual stream = clean gradient highway, no warmup needed. At std 0.02 some gradients are ~1e-4 and finite-difference noise dominates the relative error. |
+| 14 | Tied input/output embeddings by default (`tie_weights` flag) | Saves V·D params, standard in GPT-2; the gradient is the sum of both uses via `+=`. Implemented as a matmul with `tok_emb.E`, not a shared Parameter. |
 
 ## 5. Reproducibility
 

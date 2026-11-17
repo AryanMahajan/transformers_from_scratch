@@ -103,7 +103,7 @@ Study notes: [`04_attention.md`](04_attention.md)
 
 ---
 
-## Phase 5: Transformer model
+## Phase 5: Transformer model ✅
 
 - FFN (`Linear → GELU → Linear`, `d_ff = 4·d_model`)
 - Pre-LN block: `x + MHA(LN(x))`, then `x + FFN(LN(x))`
@@ -112,6 +112,9 @@ Study notes: [`04_attention.md`](04_attention.md)
 
 **Exit:** gradient check passes for a full tiny model (1–2 blocks, D=8);
 the causality test passes on the full model.
+
+Code: `src/transformer/{feed_forward,block,model}.py`.
+Study notes: [`05_transformer.md`](05_transformer.md)
 
 ---
 
