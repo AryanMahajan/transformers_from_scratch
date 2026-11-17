@@ -2,12 +2,14 @@
 
 import numpy as np
 
+from src.core.backend import is_gpu_array
+
 
 class Parameter:
     """data: the values. grad: dL/d(data), same shape, accumulated with +=."""
 
     def __init__(self, data: np.ndarray):
-        self.data = np.asarray(data)
+        self.data = data if is_gpu_array(data) else np.asarray(data)   # np.asarray(cupy) is forbidden
         self.grad = np.zeros_like(self.data)
 
     @property

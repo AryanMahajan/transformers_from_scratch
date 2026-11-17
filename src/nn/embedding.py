@@ -10,6 +10,7 @@ import numpy as np
 
 from src.core import initialization as init
 from src.core.module import Module
+from src.core.backend import like, scatter_add
 from src.core.parameter import Parameter
 
 
@@ -31,10 +32,11 @@ class Embedding(Module):
         V = self.E.shape[0]
         if ids.size and (ids.min() < 0 or ids.max() >= V):   # E[-1] would silently wrap
             raise IndexError(f"ids out of range [0, {V}): min={ids.min()}, max={ids.max()}")
+        ids = like(ids, self.E.data)                         # ids may arrive on the CPU
         self._ids = ids
         return self.E.data[ids]                              # [..., D]
 
     def backward(self, dout: np.ndarray) -> None:
         D = self.E.shape[1]
-        np.add.at(self.E.grad, self._ids.reshape(-1), dout.reshape(-1, D))
+        scatter_add(self.E.grad, self._ids.reshape(-1), dout.reshape(-1, D))   # np.add.at / cupy add.at
         return None

@@ -15,6 +15,7 @@ from dataclasses import asdict, dataclass
 import numpy as np
 
 from src.core import initialization as init
+from src.core.backend import xp_of
 from src.core.module import Module
 from src.nn.embedding import Embedding
 from src.nn.layer_norm import LayerNorm
@@ -72,7 +73,7 @@ class GPT(Module):
             raise ValueError(f"sequence length {T} > max_len {self.cfg.max_len}")
         h = self.tok_emb(ids)                                    # [B,T,D]
         if self.cfg.pos == "learned":
-            h = h + self.pos_emb(np.arange(T))                   # [T,D] broadcast over B
+            h = h + self.pos_emb(xp_of(h).arange(T))             # [T,D] broadcast over B
         else:
             h = self.pos_enc(h)
         for block in self.blocks:

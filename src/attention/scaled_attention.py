@@ -14,6 +14,7 @@ Derivations: docs/04_attention.md §1
 import numpy as np
 
 from src.attention.causal_mask import causal_mask
+from src.core.backend import xp_of
 from src.nn.softmax import softmax, softmax_backward
 
 
@@ -30,7 +31,7 @@ def attention_forward(q: np.ndarray, k: np.ndarray, v: np.ndarray, causal: bool 
 
     scores = (q @ _t(k)) * scale                          # [..., T, T]
     if causal:
-        scores = np.where(causal_mask(T), scores, -np.inf)
+        scores = np.where(causal_mask(T, xp_of(q)), scores, -np.inf)   # mask on q's device
     A = softmax(scores, axis=-1)
     out = A @ v                                           # [..., T, d]
     return out, {"q": q, "k": k, "v": v, "A": A, "scale": scale}

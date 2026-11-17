@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 
+from src.core.backend import to_numpy
 from src.tokenizer.char_tokenizer import CharTokenizer
 from src.training.trainer import Trainer, TrainConfig, _empty_history
 from src.transformer.model import GPT, GPTConfig
@@ -32,9 +33,9 @@ def save_checkpoint(path, trainer: Trainer) -> None:
     opt = trainer.opt
     arrays = {}
     for name, p in trainer.model.named_parameters():
-        arrays[f"param/{name}"] = p.data
-        arrays[f"adam_m/{name}"] = opt.m[name]
-        arrays[f"adam_v/{name}"] = opt.v[name]
+        arrays[f"param/{name}"] = to_numpy(p.data)               # GPU -> CPU: files hold NumPy
+        arrays[f"adam_m/{name}"] = to_numpy(opt.m[name])
+        arrays[f"adam_v/{name}"] = to_numpy(opt.v[name])
     meta = {
         "format_version": FORMAT_VERSION,
         "model_config": trainer.model.cfg.to_dict(),
@@ -64,20 +65,22 @@ def read_checkpoint(path) -> tuple[dict, dict]:
     return meta, arrays
 
 
-def load_model(path) -> tuple[GPT, CharTokenizer | None, dict]:
-    """For inference: (model, tokenizer, meta)."""
+def load_model(path, device: str = "cpu") -> tuple[GPT, CharTokenizer | None, dict]:
+    """For inference: (model on `device`, tokenizer, meta)."""
     meta, arrays = read_checkpoint(path)
     model = GPT(GPTConfig(**meta["model_config"]), np.random.default_rng(0), dtype=np.dtype(meta["dtype"]))
     model.load_state_dict({k[len("param/"):]: v for k, v in arrays.items() if k.startswith("param/")})
     tok = CharTokenizer.from_dict(meta["tokenizer"]) if meta["tokenizer"] else None
-    return model, tok, meta
+    return model.to(device), tok, meta
 
 
-def load_trainer(path, train_data, val_data, log=print) -> Trainer:
-    """Rebuild a Trainer exactly as it was when saved, ready for .run()."""
+def load_trainer(path, train_data, val_data, log=print, device: str = "cpu") -> Trainer:
+    """Rebuild a Trainer exactly as it was when saved, ready for .run().
+    The device may differ from the saving run (e.g. train on GPU, inspect on CPU)."""
     meta, arrays = read_checkpoint(path)
     model, tok, _ = load_model(path)
-    tr = Trainer(model, train_data, val_data, TrainConfig(**meta["train_config"]), log=log, tokenizer=tok)
+    tr = Trainer(model, train_data, val_data, TrainConfig(**meta["train_config"]), log=log,
+                 tokenizer=tok, device=device)
     tr.opt.load_state_dict({
         "t": meta["adam_t"],
         "m": {k[len("adam_m/"):]: v for k, v in arrays.items() if k.startswith("adam_m/")},

@@ -77,6 +77,7 @@ ids [B,T]
 | 15 | AdamW with decoupled decay on matrices only (ndim ≥ 2) | L2-in-Adam divides the decay by √v (measured 4.4× uneven); decaying LayerNorm γ/biases is pointless. State keyed by parameter name for exact resume. |
 | 16 | Global-norm clipping (c = 1.0) + linear warmup → cosine to max_lr/10 | Clipping preserves direction and prevents the measured post-spike Adam stall (18×); warmup covers noisy early v̂ estimates. |
 | 17 | Checkpoint = one pickle-free `.npz` (arrays + JSON meta incl. RNG states), atomic rename; `Trainer` owns all run state | Bit-identical resume is testable with `==`; RNG state prevents silent batch drift; no pickle means loading can't execute code. |
+| 18 | Optional CuPy GPU backend (`--device gpu`), NumPy default; numpy pinned 1.26.4 | Same maths via NEP-18 dispatch; only creation ops and `add.at` are device-aware; GPU grads verified == CPU grads (1e-8, float64). ~8× faster training on an RTX 3050. |
 
 ## 5. Reproducibility
 

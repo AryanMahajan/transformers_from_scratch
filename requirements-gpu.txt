@@ -1,0 +1,3 @@
+# Optional GPU backend (NVIDIA + CUDA 12-capable driver). CPU-only use needs only requirements.txt.
+-r requirements.txt
+cupy-cuda12x[ctk]==13.6.0

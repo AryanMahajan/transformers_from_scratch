@@ -20,6 +20,7 @@ Derivations: docs/06_training.md §1
 
 import numpy as np
 
+from src.core.backend import like
 from src.core.parameter import Parameter
 
 
@@ -78,5 +79,5 @@ class AdamW:
             raise KeyError("optimizer state does not match parameters")
         self.t = int(state["t"])
         for n in self.m:
-            self.m[n][...] = state["m"][n]
-            self.v[n][...] = state["v"][n]
+            self.m[n][...] = like(state["m"][n], self.m[n])      # checkpoint arrays are NumPy
+            self.v[n][...] = like(state["v"][n], self.v[n])

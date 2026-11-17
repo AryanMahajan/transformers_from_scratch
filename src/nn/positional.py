@@ -19,6 +19,7 @@ Derivations: docs/04_attention.md §3
 import numpy as np
 
 from src.core import initialization as init
+from src.core.backend import to_device
 from src.core.module import Module
 
 
@@ -53,5 +54,8 @@ class SinusoidalPositionalEncoding(Module):
         return dout                                                  # d(x + c)/dx = I
 
     def astype(self, dtype) -> "SinusoidalPositionalEncoding":
-        self.pe = self._pe64.astype(dtype)   # re-cast from f64: f32 -> f64 can't recover lost digits
+        self.pe = to_device(self._pe64.astype(dtype), self.device)   # re-cast from f64: f32 -> f64 can't recover lost digits
         return self
+
+    def _move_buffers(self, device: str) -> None:
+        self.pe = to_device(self.pe, device)

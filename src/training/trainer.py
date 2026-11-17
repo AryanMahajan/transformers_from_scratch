@@ -77,7 +77,13 @@ def _empty_history() -> dict:
 
 
 class Trainer:
-    def __init__(self, model, train_data, val_data, cfg: TrainConfig, log=print, tokenizer=None):
+    def __init__(self, model, train_data, val_data, cfg: TrainConfig, log=print, tokenizer=None,
+                 device: str = "cpu"):
+        # model first, THEN the optimizer: AdamW's m, v are created next to the parameters.
+        # Data stays on the CPU: batches are sampled with the NumPy RNG (exact resume) and
+        # the ids are copied to the model's device inside Embedding / cross_entropy.
+        self.device = device
+        model.to(device)
         self.model, self.train_data, self.val_data = model, train_data, val_data
         self.cfg, self.log, self.tokenizer = cfg, log, tokenizer
         self.opt = AdamW(model.named_parameters(), lr=cfg.max_lr, weight_decay=cfg.weight_decay)

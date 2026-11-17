@@ -13,11 +13,13 @@ from typing import Iterator
 
 import numpy as np
 
+from src.core.backend import like, to_device
 from src.core.parameter import Parameter
 
 
 class Module:
     training: bool = True
+    device: str = "cpu"                     # "cpu" (NumPy) or "gpu" (CuPy), see src/core/backend.py
 
     # ------------------------------------------------------------ contract
     def forward(self, *args, **kwargs):
@@ -83,6 +85,20 @@ class Module:
         return self
 
     # ------------------------------------------------------------ (de)serialisation
+    def to(self, device: str) -> "Module":
+        """Move every parameter (and module buffers, via _move_buffers) to 'cpu' or 'gpu'.
+        Call BEFORE creating the optimizer: AdamW's m, v are created next to the params."""
+        for p in self.parameters():
+            p.data = to_device(p.data, device)
+            p.grad = to_device(p.grad, device)
+        for m in self.modules():
+            m.device = device
+            m._move_buffers(device)
+        return self
+
+    def _move_buffers(self, device: str) -> None:
+        """Hook for non-Parameter arrays (e.g. the sinusoidal table). Default: none."""
+
     def state_dict(self) -> dict[str, np.ndarray]:
         return {name: p.data.copy() for name, p in self.named_parameters()}
 
@@ -95,4 +111,4 @@ class Module:
         for name, p in params.items():
             if state[name].shape != p.shape:
                 raise ValueError(f"{name}: shape {state[name].shape} != {p.shape}")
-            p.data[...] = state[name]   # in place: optimizer refs stay valid
+            p.data[...] = like(state[name], p.data)   # in place (optimizer refs stay valid), on p's device
