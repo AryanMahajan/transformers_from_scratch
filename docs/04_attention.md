@@ -85,6 +85,83 @@ restores variance 1. It's the same idea as initialisation.
 
 ---
 
+## 2. Multi-head attention: `src/attention/multi_head.py` (Checkpoint C)
+
+### Every shape
+```
+x                          [B, T, D]
+q,k,v = Linear(x)          [B, T, D]
+split: reshape             [B, T, H, D_h]   cut each token's features into H chunks
+       transpose(0,2,1,3)  [B, H, T, D_h]   heads next to batch; T is attention's axis
+attention per head         [B, H, T, D_h]   scale 1/√D_h
+merge: transpose(0,2,1,3)  [B, T, H, D_h]
+       reshape             [B, T, D]        concatenate heads per token
+out = Linear_o(merged)     [B, T, D]        mix across heads
+```
+
+### Why transpose, not just reshape
+`reshape` never moves data. `[B,T,D]` memory is token-major, so
+`reshape(B,H,T,D_h)` cuts it into H consecutive **blocks of positions**:
+"head 1" would only contain tokens T/2..T−1. Reshape to `[B,T,H,D_h]` first
+(this splits within each token), then transpose. The test shows the naive
+head 1 holding only tokens 2 and 3.
+
+### Why several heads
+One head gives one distribution, so one weighted average per position. H
+heads let a position look in H places for H reasons, which `W_o` then
+combines.
+- **Same parameters:** the projections are D×D whatever H is.
+- **Same attention FLOPs:** $H\cdot T^2\cdot D_h = T^2 D$.
+- **Trade-off:** each head lives in a $D_h = D/H$ subspace. Experiment C
+  (heads) tests this.
+
+### Backward = forward chain in reverse
+1. `o_proj.backward` → `d_merged [B,T,D]`
+2. split (undoes merge) → `[B,H,T,D_h]`
+3. `attention_backward` → dq, dk, dv
+4. merge each (undoes split) → `[B,T,D]`
+5. `dx = q_proj.backward(dq) + k_proj.backward(dk) + v_proj.backward(dv)`
+
+- **Reshape/transpose backward = the inverse rearrangement.** Their Jacobian
+  is a permutation $P$, and $P^\top = P^{-1}$.
+- **Why dx is a sum:** x feeds three projections. It's the multivariable
+  chain rule again.
+
+### Finding: the key bias is useless (so we removed it)
+The first gradient check failed with rel. err **1.0** on `k_proj.b`. The
+analytic gradient was ~1e-20 and the numeric gradient exactly 0, so the
+relative error of two zeros was meaningless. **The gradient really is 0:**
+
+$$q_i\cdot(k_j+b) = q_i\cdot k_j + \underbrace{q_i\cdot b}_{\text{same for all } j}$$
+
+That shifts each score row by a constant, which softmax ignores. The key
+bias never affects the output and would never train. The **query** bias is
+different: $(q_i+b)\cdot k_j$ varies with j. **Decision:** `k_proj` has no
+bias; q, v and o keep theirs. A test proves that adding any vector to all
+keys leaves the output unchanged.
+
+Lesson for gradient checking: a relative error of ~1 with **both** gradients
+≈ 0 means "zero gradient", not necessarily "bug". Look at the magnitudes.
+
+### Code notes
+- `out_std` lets the model initialise `W_o` with `gpt2_residual_std(N)` (Phase 1 §7).
+- `attn_weights` keeps `A [B,H,T,T]` from the last forward, for Phase 8's
+  attention visualisation.
+- Raises if `D % H != 0`.
+
+### Tests (`tests/test_multi_head.py`)
+- split/merge are inverses, and head j = feature slice j.
+- Shapes, and the parameter count `4D² + 3D` (independent of H).
+- Equals an explicit per-head loop.
+- **Gradient check** of input + 7 parameters (all < 4e-9), causal and not.
+- Causality through the full MHA, with future weights `== 0`.
+- H = 1 equals plain attention.
+- The naive-reshape demo.
+- Key-bias invariance.
+- Indivisible H is rejected.
+
+---
+
 ## Self-check questions
 1. Why must an LM's attention be causal? What happens to training loss without the mask?
 2. Why can't a causal softmax row produce `nan`? When could a mask cause one?
@@ -92,6 +169,11 @@ restores variance 1. It's the same idea as initialisation.
 4. Write the three backward steps of attention with shapes. Why is dK = dSᵀQ/√d and not dS·Q?
 5. Why do masked positions get zero gradient without any special code?
 6. What in attention costs O(T²) memory?
+7. **(Checkpoint C)** Walk through every reshape and transpose in MHA with shapes, forward and backward.
+8. Why does `reshape(B,H,T,D_h)` without a transpose give wrong heads?
+9. Why do multiple heads cost no extra parameters or attention FLOPs?
+10. Why is the backward of a reshape/transpose just the inverse rearrangement?
+11. Prove the key bias has zero gradient. Why doesn't the same argument apply to the query bias?
 
 ---
 
