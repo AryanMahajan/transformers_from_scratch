@@ -49,7 +49,7 @@ Study notes: [`01_numerical_foundations.md`](01_numerical_foundations.md)
 
 ---
 
-## Phase 2: Neural-network foundations
+## Phase 2: Neural-network foundations ✅
 
 | Component | File |
 |-----------|------|
@@ -64,6 +64,8 @@ Study notes: [`01_numerical_foundations.md`](01_numerical_foundations.md)
 
 **Checkpoint B:** derive the LayerNorm backward pass. Explain why Embedding
 backward must use `np.add.at` and not fancy-index assignment.
+
+Study notes: [`02_nn_foundations.md`](02_nn_foundations.md)
 
 ---
 

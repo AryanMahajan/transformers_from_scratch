@@ -177,6 +177,64 @@ version where every occurrence adds. The NumPy docs give `a[[0,0]] += 1`
 
 ---
 
+## 4. LayerNorm: `src/nn/layer_norm.py` (Checkpoint B)
+
+### What it's for
+Pre-LN: `x + MHA(LN1(x))`, `x + FFN(LN2(x))`, and `LN_final` before the LM
+head. It gives each sublayer an input with mean 0 and variance 1, whatever
+the residual stream holds.
+
+### Forward (per position, over D)
+$$\mu = \tfrac1D\textstyle\sum x_i,\quad v = \tfrac1D\sum(x_i-\mu)^2,\quad \sigma=\sqrt{v+\varepsilon},\quad \hat x = \frac{x-\mu}{\sigma},\quad y = \gamma\odot\hat x+\beta$$
+
+- Statistics are **per token**, so there's no mixing across batch or time
+  (unlike BatchNorm). That's safe for causal LMs. A test checks it.
+- γ = 1, β = 0 at init. ε = 1e-5 handles constant rows. The variance is
+  **biased** (1/D).
+
+### Backward: parameters
+$d\gamma = \sum_n \text{dout}\odot\hat x$, $d\beta = \sum_n\text{dout}$
+(shared across positions, so the gradients are summed).
+
+### Backward: input (derive this on paper)
+Let $\hat g = \text{dout}\odot\gamma$.
+1. $\partial(x_i-\mu)/\partial x_j = \delta_{ij} - 1/D$
+2. $\partial v/\partial x_j = \frac2D(x_j-\mu)$, using $\sum(x_k-\mu)=0$, so $\partial\sigma/\partial x_j = \hat x_j/D$
+3. Quotient rule: $\dfrac{\partial\hat x_i}{\partial x_j} = \dfrac1\sigma\Big(\delta_{ij}-\dfrac1D-\dfrac{\hat x_i\hat x_j}{D}\Big)$
+4. VJP:
+
+$$\boxed{dx = \frac1\sigma\Big(\hat g - \text{mean}(\hat g) - \hat x\odot\text{mean}(\hat g\odot\hat x)\Big)}$$
+
+This is O(D) per row. The cache is only $\hat x$ and $1/\sigma$ (`rstd`).
+
+### Meaning of the terms, and the orthogonality property
+- $\hat g$: the direct path, with μ and σ treated as constant.
+- $-\text{mean}(\hat g)$: removes the **shift** direction, which LN ignores.
+- $-\hat x\,\text{mean}(\hat g\hat x)$: removes the **scale** direction, which
+  LN ignores when ε = 0.
+- So $\sum_j dx_j = 0$ and $\sum_j dx_j\hat x_j = 0$ (exact when ε = 0).
+  Softmax ignores one direction (shift), LN ignores two (shift and scale).
+- ε breaks exact scale invariance by about ε/(2v). Measured: about 8e-5 for
+  unit-variance rows ×10.
+
+### Numerical trap: computing the variance
+$E[x^2]-\mu^2$ cancels catastrophically. **Measured** in float32 on rows with
+mean 1e4 and std 0.01 (true variance ≈ 9.3e-5): the naive formula gave values
+from **−24 to 16**, and 26 of 64 rows were negative, which means `sqrt` →
+`nan`. The two-pass `mean((x−μ)²)` gives an error < 1e-5.
+
+### Tests (`tests/test_layer_norm.py`)
+- Output is normalised per position.
+- Matches the explicit formula, with no cross-position mixing.
+- `check_module` with random γ, β (measured: input 1.3e-10, γ 4.6e-11,
+  β 4.2e-11).
+- dx ⟂ 1 and dx ⟂ x̂.
+- Shift and scale invariance (the ε effect is quantified).
+- A constant row stays finite.
+- Two-pass variance beats naive.
+
+---
+
 ## Self-check questions
 1. Why does `backward` accumulate into `grad` instead of assigning? Give a concrete case from our model.
 2. What goes wrong if `zero_grad()` is forgotten?
@@ -192,6 +250,11 @@ version where every occurrence adds. The NumPy docs give `a[[0,0]] += 1`
 12. Why is `E.grad[ids] += dout` wrong? What exactly happens with repeated ids?
 13. Why does Embedding.backward return None?
 14. Why validate that ids ≥ 0?
+15. **(Checkpoint B)** Derive the LayerNorm input gradient from scratch: ∂σ/∂x_j, then ∂x̂_i/∂x_j, then the VJP.
+16. **(Checkpoint B)** Explain why Embedding backward needs `np.add.at`.
+17. Why are the rows of dx orthogonal to 1 and x̂? Compare with softmax backward.
+18. Why LayerNorm rather than BatchNorm in a causal language model?
+19. Why is E[x²] − μ² dangerous in float32?
 
 ---
 
@@ -201,4 +264,6 @@ version where every occurrence adds. The NumPy docs give `a[[0,0]] += 1`
 | A minimal Module/parameters/zero_grad design | Karpathy, micrograd `nn.py`: https://github.com/karpathy/micrograd/blob/master/micrograd/nn.py |
 | Linear-layer backprop with shapes | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (§4, matrix multiply): https://cs231n.stanford.edu/handouts/derivatives.pdf |
 | Unbuffered scatter-add | NumPy docs, `ufunc.at`: https://numpy.org/doc/stable/reference/generated/numpy.ufunc.at.html |
+| LayerNorm paper | Ba, Kiros & Hinton 2016, *Layer Normalization*: https://arxiv.org/abs/1607.06450 (also `papers/03_ba2016_layer_normalization.pdf`) |
+| Pre-LN vs Post-LN | Xiong et al. 2020: `papers/s2_xiong2020_pre_ln_transformer.pdf` |
 | Manual backprop through layers | Karpathy, *Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |

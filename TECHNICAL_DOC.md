@@ -67,6 +67,8 @@ ids [B,T]
 | 5 | Papers are not committed | Redistribution rights vary, so they are fetched with a script. |
 | 6 | Gradient checks use norm-wise relative error | Element-wise ratios blow up where the true gradient is ~0. |
 | 7 | GPT-2 init: N(0, 0.02²), residual projections 0.02/√(2N) | Matches Pre-LN; logits ≈ 0 at init so step-0 loss ≈ log V. |
+| 8 | Embedding backward uses `np.add.at` | Buffered fancy-index `+=` drops repeated ids silently. |
+| 9 | LayerNorm uses two-pass variance, ε = 1e-5, biased var | `E[x²]−μ²` cancels catastrophically in float32; matches GPT-2/PyTorch. |
 
 ## 5. Reproducibility
 
