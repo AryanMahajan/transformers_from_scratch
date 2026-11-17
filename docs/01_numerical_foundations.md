@@ -227,6 +227,82 @@ It is the same algebra, but:
 
 ---
 
+## 6. Gradient checker: `src/utils/numerical.py`
+
+### What it's for
+We have no autograd, so every backward is hand-derived. A wrong gradient
+**doesn't crash**: the model just trains badly. The checker computes
+gradients by brute force from the forward pass only, and is the ground truth
+for every layer in Phases 2–5.
+
+### Central vs forward differences (Taylor)
+- Forward: $\frac{f(x+h)-f(x)}{h} = f' + \frac h2 f'' + \dots$, error **O(h)**
+- Central: $\frac{f(x+h)-f(x-h)}{2h} = f' + \frac{h^2}{6}f''' + \dots$, error **O(h²)**,
+  because the even terms cancel.
+
+### Choosing h, and why float64
+Total error ≈ truncation $h^2$ + round-off $\varepsilon_{\text{mach}}/h$,
+minimised at $h \approx \varepsilon^{1/3}$.
+
+| dtype | ε_mach | best h | noise floor |
+|---|---|---|---|
+| float32 | 1.2e-7 | ~5e-3 | ~1e-5 |
+| float64 | 2.2e-16 | ~6e-6 | ~1e-10 |
+
+**Measured** (GELU backward, relative error):
+
+| | h = 1e-2 | 1e-3 | 1e-4 | 1e-6 |
+|---|---|---|---|---|
+| float32 | 9.7e-6 | 3.5e-5 | 4.1e-4 | **1.8e-2** (round-off dominates) |
+| float64 (h=1e-6) | | | | **6.1e-10** |
+
+In float32 with a small h, a **correct** gradient looks wrong (1.8e-2). With a
+large h, real bugs of order 1e-4 are hidden. Float64 separates the two
+cleanly. That's why `numerical_gradient` refuses non-float64 input.
+
+### Relative error (norm-wise)
+
+$$\text{rel\_err} = \frac{\|a-n\|_2}{\|a\|_2+\|n\|_2}$$
+
+- An element-wise ratio blows up where the true gradient is about 0, and
+  that's common (softmax gradient rows sum to 0).
+- It's scale-free. Guide for float64: **< 1e-7 correct, ~1e-4 suspicious, ≥ 1e-2 wrong.**
+
+### Checking tensor-valued layers: the VJP trick
+Draw a random $g$ with the output's shape and define $L(x) = \sum g\odot
+\text{forward}(x)$. Then $\nabla_x L = \text{backward}(g)$, so one
+finite-difference pass checks the whole VJP. A random $g$ means no
+direction escapes the check.
+
+### Code notes
+- `f` takes **no arguments** and reads `x` by reference. `x` is perturbed **in
+  place** and restored. This is how we'll check a layer's parameters later:
+  nudge `W[i,j]`, rerun the forward, read the loss.
+- Always restore `x[idx] = orig`. A test checks this.
+- `check_vjp` calls `backward` **before** the numeric loop, because the numeric
+  loop calls `forward` many times and overwrites any cache. This follows the
+  "one forward → at most one backward" rule from `TECHNICAL_DOC.md`.
+- Cost: 2 forward passes **per input element**. Only use it on tiny shapes in tests.
+
+### Gotchas
+- Kinks (ReLU at 0, `max`, `abs`) can fail falsely if $x\pm h$ crosses
+  the kink. GELU is smooth, so we avoid this.
+- Randomness inside the forward pass (dropout) must be fixed or switched off
+  during checks.
+
+### Tests (`tests/test_numerical.py`)
+- The quadratic's gradient is 2x.
+- `x` is restored.
+- float32 is rejected.
+- Relative error handles zeros.
+- Central beats forward difference by > 1000×.
+- **A buggy backward (missing chain-rule factor) is caught**: rel. err > 1e-2,
+  against < 1e-8 for the correct one.
+
+The softmax, GELU and CE tests now use this checker instead of copied loops.
+
+---
+
 ## Self-check questions
 1. Why subtract the max rather than the mean or the min?
 2. What happens to masked (`-inf`) scores in softmax, and when does masking produce `nan`?
@@ -243,6 +319,11 @@ abla	ext{LSE} = 	ext{softmax}$.
 12. **(Checkpoint A)** Give two reasons the fused version beats chaining `-1/p_y` through softmax backward.
 13. What should the step-0 loss be for V = 65, and what does it mean if it's 20?
 14. Why mean over tokens rather than sum?
+15. Use Taylor expansions to show central differences are O(h²) and forward differences are O(h).
+16. Why is the best h about ε^(1/3)? What goes wrong if h is too small?
+17. Why check gradients in float64? Quote the noise floors.
+18. Why norm-wise relative error and not element-wise?
+19. How does the VJP trick let you check a layer whose output is a tensor?
 
 ---
 

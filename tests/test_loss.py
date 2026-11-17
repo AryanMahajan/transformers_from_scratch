@@ -2,6 +2,7 @@ import numpy as np
 
 from src.nn.loss import cross_entropy, cross_entropy_backward
 from src.nn.softmax import softmax, softmax_backward
+from src.utils.numerical import numerical_gradient, relative_error
 
 
 def test_uniform_logits_give_log_V():
@@ -24,17 +25,8 @@ def test_backward_matches_finite_differences():
     y = rng.integers(0, V, size=(B, T))
     _, probs = cross_entropy(z, y)
     analytic = cross_entropy_backward(probs, y)
-
-    eps = 1e-6
-    numeric = np.zeros_like(z)
-    for idx in np.ndindex(z.shape):
-        zp, zm = z.copy(), z.copy()
-        zp[idx] += eps
-        zm[idx] -= eps
-        numeric[idx] = (cross_entropy(zp, y)[0] - cross_entropy(zm, y)[0]) / (2 * eps)
-
-    rel_err = np.abs(analytic - numeric).max() / np.abs(numeric).max()
-    assert rel_err < 1e-6
+    numeric = numerical_gradient(lambda: cross_entropy(z, y)[0], z)
+    assert relative_error(analytic, numeric) < 1e-8
 
 
 def test_fused_equals_chained_on_safe_inputs():

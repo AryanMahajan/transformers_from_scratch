@@ -1,6 +1,7 @@
 import numpy as np
 
 from src.nn.softmax import log_softmax, softmax, softmax_backward
+from src.utils.numerical import check_vjp
 
 
 def test_rows_sum_to_one_and_positive():
@@ -55,22 +56,15 @@ def test_backward_matches_explicit_jacobian():
 
 
 def test_backward_matches_finite_differences_batched():
-    """Scalar loss L = sum(g * softmax(z)); compare dL/dz to central diffs."""
     rng = np.random.default_rng(3)
     z = rng.standard_normal((2, 3, 5))  # [B, T, V], float64
-    g = rng.standard_normal(z.shape)
-    analytic = softmax_backward(softmax(z), g)
+    cache = {}
 
-    eps = 1e-6
-    numeric = np.zeros_like(z)
-    for idx in np.ndindex(z.shape):
-        zp, zm = z.copy(), z.copy()
-        zp[idx] += eps
-        zm[idx] -= eps
-        numeric[idx] = (np.sum(g * softmax(zp)) - np.sum(g * softmax(zm))) / (2 * eps)
+    def fwd(x):
+        cache["p"] = softmax(x)
+        return cache["p"]
 
-    rel_err = np.abs(analytic - numeric).max() / np.abs(numeric).max()
-    assert rel_err < 1e-6
+    assert check_vjp(fwd, lambda g: softmax_backward(cache["p"], g), z, rng) < 1e-8
 
 
 def test_backward_rows_sum_to_zero():

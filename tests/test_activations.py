@@ -3,6 +3,7 @@ import math
 import numpy as np
 
 from src.nn.activations import gelu, gelu_backward
+from src.utils.numerical import check_vjp
 
 
 def _gelu_exact(x):
@@ -33,12 +34,7 @@ def test_non_monotonic_dip():
 def test_backward_matches_finite_differences():
     rng = np.random.default_rng(0)
     x = rng.standard_normal((2, 3, 8)) * 3  # [B, T, F], float64, spans the dip
-    g = rng.standard_normal(x.shape)
-    eps = 1e-6
-    numeric = (gelu(x + eps) - gelu(x - eps)) / (2 * eps) * g  # valid: element-wise fn
-    analytic = gelu_backward(x, g)
-    rel_err = np.abs(analytic - numeric).max() / np.abs(numeric).max()
-    assert rel_err < 1e-6
+    assert check_vjp(gelu, lambda g: gelu_backward(x, g), x, rng) < 1e-8
 
 
 def test_slope_at_zero_is_half():
