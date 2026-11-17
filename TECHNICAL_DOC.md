@@ -71,6 +71,7 @@ ids [B,T]
 | 9 | LayerNorm uses two-pass variance, ε = 1e-5, biased var | `E[x²]−μ²` cancels catastrophically in float32; matches GPT-2/PyTorch. |
 | 10 | Dataset: Tiny Shakespeare, contiguous 90/10 split, vocab from train only | Public domain, standard baselines; contiguous split avoids window leakage. |
 | 11 | No key bias in attention (q, v, o keep theirs) | `q·(k+b)` shifts each score row by a constant; softmax ignores it, so the gradient is exactly 0. |
+| 12 | Sinusoidal positions as a fixed buffer, interleaved sin/cos, built in float64 | No parameters (identity backward); `PE[t+k]` is a rotation of `PE[t]`; a float64 master avoids f32→f64 casts carrying rounding error into grad checks. Learned positions (an `Embedding` over `arange(T)`) are the Experiment D alternative. |
 
 ## 5. Reproducibility
 

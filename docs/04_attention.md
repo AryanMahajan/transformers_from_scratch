@@ -162,6 +162,83 @@ Lesson for gradient checking: a relative error of ~1 with **both** gradients
 
 ---
 
+## 3. Sinusoidal positional encoding: `src/nn/positional.py`
+
+### Why we need positions at all
+Attention only sees a **set**: no step in §1–§2 uses the index t. Shuffle the
+input tokens and the outputs shuffle the same way (*permutation
+equivariance*). "dog bites man" and "man bites dog" would look identical.
+- The causal mask leaks *some* order (position t sees exactly t+1 tokens),
+  but that's weak and indirect. Real models add explicit positions.
+- Fix: `h_0 = TokenEmbedding(ids) + PE[:T]`. Each token is tagged with "where".
+
+### Formula (Vaswani §3.5)
+
+$$\omega_i = 10000^{-2i/D},\qquad PE_{t,2i} = \sin(t\,\omega_i),\qquad PE_{t,2i+1} = \cos(t\,\omega_i),\qquad i = 0..\tfrac D2-1$$
+
+- **Geometric frequencies:** consecutive ratios are $10000^{-2/D}$. Periods
+  run from $2\pi$ (pair 0, changes every token) to $2\pi\cdot 10000^{(D-2)/D}$
+  (≈ 47,000 for D = 64: changes slowly). Like a clock or binary counter: fast
+  hands for fine position, slow hands for coarse position.
+- **Bounded:** values in [−1, 1], so they don't swamp embeddings. Every row
+  has norm $\sqrt{D/2}$ (each pair has sin²+cos² = 1).
+- **Unique:** no two positions (within a sane max_len) share a vector.
+
+### The key property: shifts are rotations
+Each pair $(\sin t\omega, \cos t\omega)$ is a point on the unit circle. By the
+angle-addition formulas:
+
+$$\begin{pmatrix}\sin (t+k)\omega\ \cos (t+k)\omega\end{pmatrix} =
+\begin{pmatrix}\cos k\omega & \sin k\omega\ -\sin k\omega & \cos k\omega\end{pmatrix}
+\begin{pmatrix}\sin t\omega\ \cos t\omega\end{pmatrix}$$
+
+So $PE_{t+k} = R(k)\,PE_t$ with $R(k)$ block-diagonal and **independent of t**.
+"k tokens back" is one fixed linear map, which a learned $W_Q, W_K$ can exploit.
+Consequence: $PE_t\cdot PE_{t+k} = \sum_i \cos(k\omega_i)$ depends only on the
+offset k, and falls off with |k|.
+
+**Measured** (D = 64): similarity at offset 0, 1, 2, 5, 20, 100 =
+32.0, 30.9, 28.3, 23.5, 18.9, 17.9.
+
+### Backward
+`out = x + PE` and PE is a constant, so `dx = dout` exactly. No parameters, no
+gradient to store. It's the cheapest layer in the model.
+
+### Sinusoidal vs learned (Experiment D)
+| | Sinusoidal | Learned (`Embedding(max_len, D)` on `arange(T)`) |
+|---|---|---|
+| Parameters | 0 | max_len·D |
+| Longer sequences than trained | formula defined (quality not guaranteed) | impossible (no row) |
+| Flexibility | fixed | learns whatever helps |
+GPT-2 uses learned; the original Transformer used sinusoidal and reported
+nearly identical results. Modern LLMs mostly use RoPE, which applies this same
+rotation idea *inside* attention to q and k.
+
+### Gotchas
+- **D must be even** (sin/cos pairs). Raises otherwise.
+- **Interleaved vs concatenated:** we interleave (sin at even columns, cos at
+  odd), like the paper. Some code uses `[sin…, cos…]` halves. Both are fine,
+  but you can't mix tables between conventions.
+- **Precision bug caught by the tests:** the first version built the table in
+  float32 and then `.astype(float64)` for grad checks. Up-casting can't
+  recover lost digits (error ~3e-8). Fix: keep a float64 master and cast
+  *down* from it.
+- The table is a plain array, not a `Parameter`: not trained, not in
+  `state_dict` (it's recomputed from the formula).
+- `T > max_len` raises.
+
+### Tests (`tests/test_positional.py`)
+- Matches the formula element-wise; PE[0] = (0,1,0,1,…); bounded; row norm √(D/2).
+- Frequencies are geometric (ratio $10000^{-2/D}$).
+- **Shift = fixed rotation:** `PE[k:] == PE[:T] @ R(k)ᵀ` for all t.
+- Dot product depends only on the offset, decreasing nearby.
+- 512 positions all distinct.
+- Module: adds the table, 0 parameters, backward is identity, grad check < 1e-8.
+- **Order blindness:** non-causal MHA on permuted input = permuted output; with
+  PE added, this breaks.
+
+---
+
 ## Self-check questions
 1. Why must an LM's attention be causal? What happens to training loss without the mask?
 2. Why can't a causal softmax row produce `nan`? When could a mask cause one?
@@ -174,6 +251,11 @@ Lesson for gradient checking: a relative error of ~1 with **both** gradients
 9. Why do multiple heads cost no extra parameters or attention FLOPs?
 10. Why is the backward of a reshape/transpose just the inverse rearrangement?
 11. Prove the key bias has zero gradient. Why doesn't the same argument apply to the query bias?
+12. Show that attention without positions is permutation-equivariant. Why is that bad for language?
+13. Write the sinusoidal formula. Why geometric frequencies, and what are the shortest and longest periods?
+14. Derive $PE_{t+k} = R(k)PE_t$. Why does it matter that R(k) doesn't depend on t?
+15. Why is the backward of positional encoding the identity? How many parameters does it have?
+16. Sinusoidal vs learned positions: give one advantage of each.
 
 ---
 
@@ -182,4 +264,5 @@ Lesson for gradient checking: a relative error of ~1 with **both** gradients
 |---|---|
 | The original paper (§3.2) | Vaswani et al. 2017, *Attention Is All You Need*: https://arxiv.org/abs/1706.03762 (also `papers/02_vaswani2017_attention_is_all_you_need.pdf`) |
 | Visual walkthrough of Q/K/V and multi-head | Jay Alammar, *The Illustrated Transformer*: https://jalammar.github.io/illustrated-transformer/ |
+| Positional encoding intuition and the rotation proof | Amirhossein Kazemnejad, *Transformer Architecture: The Positional Encoding*: https://kazemnejad.com/blog/transformer_architecture_positional_encoding/ |
 | Building causal self-attention in code | Karpathy, *Let's build GPT: from scratch, in code, spelled out*: https://www.youtube.com/watch?v=kCc8FmEb1nY |

@@ -23,8 +23,8 @@ attempt at a state-of-the-art LLM.
 | 1 | Numerical foundations (Softmax, LogSoftmax, GELU, cross-entropy) | ✅ done |
 | 2 | NN foundations (Parameter, Module, Linear, Embedding, LayerNorm) | ✅ done |
 | 3 | Tokenization (char-level → BPE) | ✅ done |
-| 4 | Attention (causal mask, scaled dot-product, multi-head) | ⏳ next |
-| 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ⬜ |
+| 4 | Attention (causal mask, scaled dot-product, multi-head, sinusoidal positions) | ✅ done |
+| 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ⏳ next |
 | 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ⬜ |
 | 7 | Real corpus, checkpointing, generation, evaluation | ⬜ |
 | 8 | Experiments A–E, attention visualisation, report | ⬜ |

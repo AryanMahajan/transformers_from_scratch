@@ -82,14 +82,14 @@ Study notes: [`03_tokenization.md`](03_tokenization.md)
 
 ---
 
-## Phase 4: Attention
+## Phase 4: Attention ✅
 
 | Component | File |
 |-----------|------|
 | Causal mask | `src/attention/causal_mask.py` |
 | Scaled dot-product attention (fwd/bwd) | `src/attention/scaled_attention.py` |
 | Multi-head attention (split/merge heads, W_Q/K/V/O) | `src/attention/multi_head.py` |
-| Sinusoidal positional encoding | `src/nn/embedding.py` or `src/transformer/` |
+| Sinusoidal positional encoding | `src/nn/positional.py` |
 
 **Exit:**
 - gradient check passes for attention on small tensors
@@ -98,6 +98,8 @@ Study notes: [`03_tokenization.md`](03_tokenization.md)
 
 **Checkpoint C:** walk through every reshape/transpose in MHA with shapes.
 Explain the `√d_k` scaling from a variance argument.
+
+Study notes: [`04_attention.md`](04_attention.md)
 
 ---
 
