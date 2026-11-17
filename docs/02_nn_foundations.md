@@ -85,12 +85,66 @@ ids) are skipped automatically.
 
 ---
 
+## 2. Linear: `src/nn/linear.py`
+
+### What it's for
+Q/K/V/O projections, both FFN layers, and the LM head. Almost all of the
+model's FLOPs are here.
+
+### Forward
+$y = xW + b$, with `x:[B,T,D_in]`, `W:[D_in,D_out]`, `b:[D_out]`. `@`
+broadcasts over the leading axes, so all $N = B\cdot T$ positions share one $W$.
+
+### Backward (index notation, flattened positions n)
+$y_{nj} = \sum_i x_{ni}W_{ij} + b_j$
+
+| Gradient | Index form | Matrix form | Shapes |
+|---|---|---|---|
+| $dx$ | $\sum_j \text{dout}_{nj}W_{ij}$ | `dout @ W.T` | `[N,Dout]·[Dout,Din]` |
+| $dW$ | $\sum_n x_{ni}\,\text{dout}_{nj}$ | `x.T @ dout` | `[Din,N]·[N,Dout]` |
+| $db$ | $\sum_n \text{dout}_{nj}$ | `dout.sum(0)` | `[Dout]` |
+
+### Key ideas
+1. **Shapes force the answer.** `dW` must be `[D_in,D_out]`, and only
+   `xᵀ·dout` fits. Use this to place transposes.
+2. **The sum over n is accumulation.** $W$ is reused at every one of the B·T
+   positions, so its gradient is the sum of B·T contributions (§1's rule).
+   The matmul does the sum.
+3. **Flatten `[B,T,D] → [B·T,D]`** so that one matmul contracts over both batch
+   axes. `reshape` is free for contiguous arrays.
+4. **Cost:** forward is 1 matmul, backward is 2, so training ≈ 3× forward,
+   which gives the "≈ 6·params FLOPs per training token" rule.
+5. **Cache:** only `x` (needed for `dW`). `dx` doesn't need `x`.
+
+### Code notes
+- `bias=False` sets `self.b = None`, which the registry skips automatically.
+  Useful for Q/K/V projections and the tied LM head.
+- Default init: $\mathcal N(0, 0.02^2)$ weights (GPT-2), zero bias, float32.
+  `std` can be overridden, e.g. `gpt2_residual_std(N)` for `W_o` and `W_2`.
+- The cache is a reference to `x`, not a copy. That's safe because callers
+  don't mutate activations in place.
+
+### Tests (`tests/test_linear.py`)
+- Forward values at one position.
+- `check_module` on 3-D input (measured errors: input 8.7e-11, W 9.5e-13,
+  b 1.2e-12) and on 2-D input with no bias.
+- `dW` equals an explicit sum of outer products over every (b, t).
+- Gradient shapes match parameter shapes.
+- Default init.
+
+---
+
 ## Self-check questions
 1. Why does `backward` accumulate into `grad` instead of assigning? Give a concrete case from our model.
 2. What goes wrong if `zero_grad()` is forgotten?
 3. Why must `parameters()` dedupe tied weights? What would Adam do otherwise?
 4. Why does `state_dict()` return copies?
 5. How does `check_module` check parameter gradients without any change to the layer's code?
+6. Derive dx, dW and db for y = xW + b in index notation. Check the shapes.
+7. Why does dW sum over both B and T? Connect it to the accumulation rule.
+8. Why flatten to [B·T, D] in backward but not in forward?
+9. Why does training cost about 3× a forward pass?
+10. What does Linear cache, and why doesn't it need to cache W?
 
 ---
 
@@ -98,4 +152,5 @@ ids) are skipped automatically.
 | Topic | Source |
 |---|---|
 | A minimal Module/parameters/zero_grad design | Karpathy, micrograd `nn.py`: https://github.com/karpathy/micrograd/blob/master/micrograd/nn.py |
+| Linear-layer backprop with shapes | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (§4, matrix multiply): https://cs231n.stanford.edu/handouts/derivatives.pdf |
 | Manual backprop through layers | Karpathy, *Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |
