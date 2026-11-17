@@ -165,6 +165,68 @@ GELU'(0) = 0.5.
 
 ---
 
+## 5. Fused cross-entropy: `src/nn/loss.py` (Checkpoint A)
+
+### What it's for
+This is the training objective. Logits `[B,T,V]` and targets `[B,T]` (the
+true next token) go in, one scalar comes out. Every gradient in the model
+starts here.
+
+### Forward
+With $N = B\cdot T$:
+
+$$L = -\frac1N\sum_n \log p_{n,y_n} = \frac1N\sum_n\big(\text{LSE}(z_n) - z_{n,y_n}\big)$$
+
+- It is computed with `log_softmax` (§2), so it's stable for any logits.
+- It takes the **mean** over all tokens, so the loss scale doesn't depend on
+  B or T and learning rates stay comparable.
+- **Uniform logits give $L = \log V$.** Use this to sanity-check
+  initialisation: step-0 loss should be ≈ log V (≈ 4.17 for V = 65).
+
+### Backward: derivation to know by heart
+For one position: $L = \text{LSE}(z) - z_y$. Using $\nabla\text{LSE} = \text{softmax}$:
+
+$$\frac{\partial L}{\partial z_j} = p_j - \delta_{jy}\quad\Rightarrow\quad \boxed{\frac{\partial L}{\partial z} = \frac1N(p - \text{onehot}(y))}$$
+
+Intuition: the target logit is pushed **up** by $1-p_y$ and every other logit
+is pushed **down** by $p_j$, in proportion to how wrong the model is. A
+confident correct prediction gives a gradient of about 0.
+
+### Why fused (the Checkpoint A answer)
+Chained route: $\partial L/\partial p_y = -1/p_y$, then `softmax_backward`.
+It is the same algebra, but:
+- **Stability:** when the model is badly wrong, $p_y$ underflows to 0
+  (logit gap ≳ 745 in float64, ≳ 104 in float32). Then $-1/p_y = -\infty$
+  and $\infty\cdot0 = $ **nan**. Before underflow, a huge × tiny product
+  loses precision. The fused version never divides by $p$.
+- **Speed and memory:** one subtract per row against building $g$, a dot
+  product and a multiply. Only $p$ is cached.
+- It fails exactly where the gradient matters most: on badly wrong predictions.
+
+### Code notes
+- Reshape `[B,T,V]` → `[N,V]` and `[B,T]` → `[N]`, then use fancy indexing
+  `log_probs[np.arange(N), y]` to pick each row's target entry.
+- The forward returns `probs` as the cache, so the backward needs no
+  recomputation.
+- The backward **copies** `probs` before the in-place `-= 1`. Otherwise it
+  would corrupt the cache. A test checks this.
+
+### How it's tested (`tests/test_loss.py`)
+- Uniform logits give log V.
+- A confident correct prediction gives loss ≈ 0 and grad ≈ 0.
+- Finite differences on `[B,T,V]`.
+- Fused equals chained on safe inputs.
+- A demo where chained gives **nan** at logits `[1000, 0]` with target 1,
+  while fused gives `[1, −1]`.
+- Gradient rows sum to 0, and the cache isn't mutated.
+
+### Not handled yet (later phases)
+- `ignore_index`/padding mask. It isn't needed with fixed-length
+  next-token batches.
+- Label smoothing.
+
+---
+
 ## Self-check questions
 1. Why subtract the max rather than the mean or the min?
 2. What happens to masked (`-inf`) scores in softmax, and when does masking produce `nan`?
@@ -176,6 +238,11 @@ GELU'(0) = 0.5.
 8. Show that $\sqrt{2/\pi}$ makes the tanh approximation's slope at 0 match $\Phi'(0)$.
 9. Derive GELU'(x) from the tanh form. Why is the backward a plain element-wise multiply?
 10. Why does GELU backward need the input, while softmax backward needs the output?
+11. **(Checkpoint A)** Derive $\partial L/\partial z = p - 	ext{onehot}(y)$ on paper using $
+abla	ext{LSE} = 	ext{softmax}$.
+12. **(Checkpoint A)** Give two reasons the fused version beats chaining `-1/p_y` through softmax backward.
+13. What should the step-0 loss be for V = 65, and what does it mean if it's 20?
+14. Why mean over tokens rather than sum?
 
 ---
 
@@ -185,6 +252,7 @@ GELU'(0) = 0.5.
 | Softmax numeric stability | CS231n, Linear classification, *"Practical issues: Numeric stability"*: https://cs231n.github.io/linear-classify/#softmax-classifier |
 | LSE trick; ∇LSE = softmax | Wikipedia, LogSumExp: https://en.wikipedia.org/wiki/LogSumExp |
 | Softmax Jacobian derivation | Eli Bendersky, *The Softmax function and its derivative*: https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/ |
+| Softmax + CE gradient | Bendersky (link above), section *"Softmax and cross-entropy loss"* |
 | Jacobians and VJPs in backprop | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (CS231n): https://cs231n.stanford.edu/handouts/derivatives.pdf |
 | GELU paper | Hendrycks & Gimpel, *Gaussian Error Linear Units (GELUs)*: https://arxiv.org/abs/1606.08415 (also in `papers/s1_hendrycks2016_gelu.pdf`) |
 | Manual backprop, start to finish | Karpathy, *Building makemore Part 4: Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |
