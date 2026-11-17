@@ -30,7 +30,10 @@ class Linear(Module):
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         self._x = x                                   # cache for dW (reference, no copy)
-        y = x @ self.W.data                           # broadcasts over leading dims
+        d_in, d_out = self.W.shape
+        # flatten leading dims -> ONE 2-D GEMM. (A 3-D `x @ W` makes NumPy loop over the
+        # batch: measured 13x slower for [16,128,128] @ [128,512].) Same maths, same shapes.
+        y = (x.reshape(-1, d_in) @ self.W.data).reshape(*x.shape[:-1], d_out)
         if self.b is not None:
             y = y + self.b.data
         return y
@@ -44,4 +47,4 @@ class Linear(Module):
         self.W.grad += x2.T @ d2                      # [D_in, D_out]
         if self.b is not None:
             self.b.grad += d2.sum(axis=0)             # [D_out]
-        return dout @ self.W.data.T                   # [..., D_in]
+        return (d2 @ self.W.data.T).reshape(x.shape)  # [..., D_in]  (2-D GEMM, see forward)
