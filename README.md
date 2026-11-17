@@ -25,8 +25,8 @@ attempt at a state-of-the-art LLM.
 | 3 | Tokenization (char-level → BPE) | ✅ done |
 | 4 | Attention (causal mask, scaled dot-product, multi-head, sinusoidal positions) | ✅ done |
 | 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ✅ done |
-| 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ⏳ next |
-| 7 | Real corpus, checkpointing, generation, evaluation | ⬜ |
+| 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ✅ done |
+| 7 | Real corpus, checkpointing, generation, evaluation | ⏳ next |
 | 8 | Experiments A–E, attention visualisation, report | ⬜ |
 
 [`docs/ROADMAP.md`](docs/ROADMAP.md) has the full plan and the exit
@@ -44,6 +44,7 @@ pip install -r requirements-dev.txt
 
 python scripts/download_papers.py   # fetch reference PDFs into papers/
 python scripts/prepare_data.py      # download + split + tokenize Tiny Shakespeare
+python scripts/overfit_tiny.py      # midterm gate: memorise 257 chars, plot loss curve
 pytest                              # run the test suite
 ```
 

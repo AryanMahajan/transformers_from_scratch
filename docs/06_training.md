@@ -242,6 +242,85 @@ Toy corpus `"thequickbrownfox" × 200` (period 16, 15 distinct letters), 1 block
 
 ---
 
+## 4. Midterm gate: memorise a tiny corpus (`scripts/overfit_tiny.py`)
+
+### Why this test
+If a model **can't** drive the loss to ~0 on a tiny dataset, something in
+forward, backward, the optimizer or the data pipeline is broken. Memorisation
+is the easiest thing a model can do. It's the standard first sanity check
+before any real training (Karpathy's "overfit one batch").
+
+### Setup
+- The first **257 characters** of Tiny Shakespeare. **One** window of
+  T = 256 (batch size 1; with N = T+1 there is exactly one valid window).
+- Every position sees its **entire prefix**, so the next character is fully
+  determined and the minimum loss is 0. (With random short windows it wouldn't
+  be: §3's floor.)
+- Model: D = 64, H = 4, N = 2, max_len = 256, tied, sinusoidal:
+  **104,192 parameters**.
+- AdamW lr 3e-3 → 3e-4 cosine, 20 warmup steps, **weight decay 0** (we *want*
+  to overfit), clip 1.0, 400 steps.
+
+### Result
+`experiments/overfit_tiny/loss_curve.png`, `summary.json`
+
+| | value |
+|---|---|
+| init loss | **4.1902** (ln 66 = 4.1897) |
+| unigram entropy of the passage | 3.16 |
+| final loss (step 400) | **0.0019** |
+| teacher-forced accuracy | **100%** |
+| greedy generation from just "F" | **257/257 characters exact** |
+| time | 157 s (CPU, NumPy) |
+
+### Reading the curve
+1. **Step 0 at ln V:** the init is correct (Phase 5 §3).
+2. **Bend near the unigram line (steps 15–25):** it first learns character
+   frequencies, the same plateau as §3, much shorter here.
+3. **Steep drop (steps 60–100):** it starts using context. Attention learns
+   to look back.
+4. **Slow tail:** pushing already-correct probabilities from 0.99 to 0.998.
+   The loss keeps falling as the logits grow, but accuracy is already 100%.
+
+### Why it needs attention, not just bigrams
+"First Citizen:" appears 3× and "All:" 3×, and the text after each
+"All:\n" differs ("Speak", "Resolved", "W…"). A bigram or short-context model
+can't tell these occurrences apart. Only the long prefix can. Free-running
+greedy decoding (feeding back its own outputs) reproducing all 257 characters
+shows every one of those decisions was learned.
+
+### Greedy decoding: `src/generation/greedy.py`
+```
+repeat n_new times:
+    ctx = ids[-max_len:]                  crop: no positions beyond max_len
+    next = argmax(model(ctx)[0, -1])      only the LAST position predicts the new token
+    ids.append(next)
+```
+- Deterministic, so it's the right decoder for checking memorisation.
+- Cost: one full forward per token, O(T²) each, because there's no KV cache.
+  Fine at this size.
+- Teacher-forced accuracy vs free-running: teacher forcing feeds the *true*
+  prefix. Free-running feeds the model's own outputs, so one mistake would
+  derail everything after it. 257/257 is the stronger result.
+- Sampling with temperature/top-k comes in Phase 7.
+
+### Tests
+- `tests/test_greedy.py`: length, prompt kept, crops past max_len, deterministic,
+  restores train mode, next = argmax of the last position, reproduces a learned
+  cycle, empty prompt rejected.
+- `tests/test_overfit_script.py`: smoke run (33 chars, 60 steps) writes the
+  plot and summary, init ≈ ln V, loss halves. Skipped if the data isn't downloaded.
+
+### For the demo
+1. `python scripts/overfit_tiny.py`: watch the loss go from 4.19 to ~0.002.
+2. Show `loss_curve.png` and explain the four regions above.
+3. Show the generated text = the original passage.
+4. Explain why this proves forward, backward, the optimizer and the data
+   pipeline are all correct together, and why it says nothing about
+   generalisation (val loss would be terrible). That comes in Phase 7.
+
+---
+
 ## Self-check questions
 1. Why does one SGD learning rate struggle with very different curvatures? What did the quadratic experiment show?
 2. Write the Adam update. What do m and v estimate, and over roughly how many steps?
@@ -260,12 +339,19 @@ Toy corpus `"thequickbrownfox" × 200` (period 16, 15 distinct letters), 1 block
 15. Why must `zero_grad` come before `backward` in every step?
 16. Why average the eval loss over several batches, and why use a separate RNG for eval?
 17. The loss sits at 2.70 for 100 steps, then drops. What does 2.70 correspond to? Why does the tied model plateau but the untied one doesn't?
+18. Why is overfitting a tiny corpus the right first test? What bugs would it catch, and what does it *not* tell you?
+19. Why use one window of T = N−1 instead of random short windows for the memorisation test?
+20. Describe the four regions of the memorisation loss curve.
+21. Why can't a bigram model memorise this passage? What does that say about attention?
+22. Teacher-forced accuracy vs free-running generation: which is the stronger test, and why?
+23. Why turn weight decay off here?
 
 ---
 
 ## 📚 Further reading (optional)
 | Topic | Source |
 |---|---|
+| The "overfit a tiny batch first" habit | Karpathy, *A Recipe for Training Neural Networks*: https://karpathy.github.io/2019/04/25/recipe/ |
 | Adam (algorithm + bias-correction derivation) | Kingma & Ba 2014, *Adam: A Method for Stochastic Optimization*: https://arxiv.org/abs/1412.6980 |
 | Gradient-norm clipping (original proposal) | Pascanu, Mikolov & Bengio 2012, *On the difficulty of training Recurrent Neural Networks*: https://arxiv.org/abs/1211.5063 |
 | Why warmup helps Adam (variance of the adaptive LR) | Liu et al. 2019, *On the Variance of the Adaptive Learning Rate and Beyond* (RAdam): https://arxiv.org/abs/1908.03265 |

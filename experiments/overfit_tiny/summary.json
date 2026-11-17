@@ -1,0 +1,39 @@
+{
+  "model": {
+    "vocab_size": 66,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 2,
+    "max_len": 256,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 400,
+    "batch_size": 1,
+    "block_size": 256,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 20,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "eval_interval": 50,
+    "eval_iters": 1,
+    "log_interval": 25,
+    "seed": 0
+  },
+  "n_params": 104192,
+  "chars": 257,
+  "ln_V": 4.189654742026425,
+  "unigram_entropy": 3.1649521751834455,
+  "init_loss": 4.190184593200684,
+  "final_loss": 0.0019212320912629366,
+  "min_step_loss": 0.0019229009049013257,
+  "seconds": 157.4,
+  "teacher_forced_accuracy": 1.0,
+  "greedy_exact_prefix_chars": 257,
+  "greedy_exact": true,
+  "text": "First Citizen:\nBefore we proceed any further, hear me speak.\n\nAll:\nSpeak, speak.\n\nFirst Citizen:\nYou are all resolved rather to die than to famish?\n\nAll:\nResolved. resolved.\n\nFirst Citizen:\nFirst, you know Caius Marcius is chief enemy to the people.\n\nAll:\nW",
+  "generated": "First Citizen:\nBefore we proceed any further, hear me speak.\n\nAll:\nSpeak, speak.\n\nFirst Citizen:\nYou are all resolved rather to die than to famish?\n\nAll:\nResolved. resolved.\n\nFirst Citizen:\nFirst, you know Caius Marcius is chief enemy to the people.\n\nAll:\nW"
+}

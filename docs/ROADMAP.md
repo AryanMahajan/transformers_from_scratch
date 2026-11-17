@@ -118,7 +118,7 @@ Study notes: [`05_transformer.md`](05_transformer.md)
 
 ---
 
-## Phase 6: Training (midterm gate)
+## Phase 6: Training (midterm gate) ✅
 
 - Adam (then AdamW), gradient clipping
 - Batching and sequence creation, training loop, logging
@@ -126,6 +126,10 @@ Study notes: [`05_transformer.md`](05_transformer.md)
 
 **Exit / midterm demo:** a randomly initialised model memorises a tiny
 dataset and the loss curve is plotted.
+
+**Result:** 257 chars, loss 4.19 → 0.0019, greedy reproduces 257/257 chars
+(`python scripts/overfit_tiny.py`, `experiments/overfit_tiny/`).
+Study notes: [`06_training.md`](06_training.md)
 
 ---
 
