@@ -51,15 +51,20 @@ class CharTokenizer:
         return "".join(self.itos[i] for i in ids.reshape(-1).tolist())
 
     # ------------------------------------------------------------ persistence
+    def to_dict(self) -> dict:
+        return {"type": "char", "specials": list(self.specials), "tokens": list(self.itos)}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "CharTokenizer":
+        if data.get("type") != "char":
+            raise ValueError(f"not a char tokenizer: type={data.get('type')}")
+        return cls(data["tokens"], data["specials"])
+
     def save(self, path: str | Path) -> None:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        data = {"type": "char", "specials": self.specials, "tokens": self.itos}
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+        path.write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
 
     @classmethod
     def load(cls, path: str | Path) -> "CharTokenizer":
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-        if data.get("type") != "char":
-            raise ValueError(f"not a char tokenizer file: type={data.get('type')}")
-        return cls(data["tokens"], data["specials"])
+        return cls.from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
