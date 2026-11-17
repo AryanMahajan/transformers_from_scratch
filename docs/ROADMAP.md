@@ -26,7 +26,7 @@ Conventions used throughout: see [`../TECHNICAL_DOC.md`](../TECHNICAL_DOC.md).
 
 ---
 
-## Phase 1: Numerical foundations
+## Phase 1: Numerical foundations ✅
 
 | Component | File | Key idea |
 |-----------|------|----------|
@@ -44,6 +44,8 @@ Conventions used throughout: see [`../TECHNICAL_DOC.md`](../TECHNICAL_DOC.md).
 - cross-entropy on uniform logits equals `log(V)`
 
 **Checkpoint A:** derive `∂CE/∂z` on paper and explain why the fused version is both faster and more stable.
+
+Study notes: [`01_numerical_foundations.md`](01_numerical_foundations.md)
 
 ---
 

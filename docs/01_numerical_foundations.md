@@ -303,6 +303,66 @@ The softmax, GELU and CE tests now use this checker instead of copied loops.
 
 ---
 
+## 7. Initialisation: `src/core/initialization.py`
+
+### What it's for
+It sets the starting value of every weight. A bad scale makes activations
+and gradients explode or vanish **exponentially in depth** before training
+even starts.
+
+### Variance preservation
+For $y_j = \sum_{i=1}^{n_{in}} x_iW_{ij}$ (independent, zero-mean):
+$\text{Var}(y) = n_{in}\sigma^2\,\text{Var}(x)$. After $L$ layers the factor
+is $(n_{in}\sigma^2)^L$.
+
+**Measured** (20 linear layers, width 256):
+
+| std | Var after 20 layers |
+|---|---|
+| 1.0 | 1.5e+48 |
+| 0.01 | 1.4e-32 |
+| 1/√256 | 0.92 |
+
+| Scheme | σ² | Preserves | Use with |
+|---|---|---|---|
+| LeCun | $1/n_{in}$ | forward | linear / tanh |
+| Xavier/Glorot | $2/(n_{in}+n_{out})$ | compromise between forward and backward ($1/n_{out}$) | tanh, sigmoid |
+| Xavier uniform | $U(\pm a),\ a=\sqrt{6/(n_{in}+n_{out})}$ | same (Var of $U(\pm a)$ = $a^2/3$) | |
+| He/Kaiming | $2/n_{in}$ | forward through ReLU ($E[\text{relu}(x)^2]=v/2$) | ReLU, ≈GELU |
+
+Measured second moments for $x\sim\mathcal N(0,1)$: $E[\text{relu}^2] = 0.499$,
+$E[\text{gelu}^2] = 0.425$.
+
+### GPT-2 scheme (what our model will use)
+- All weights $\mathcal N(0, 0.02^2)$; biases 0; LayerNorm γ = 1, β = 0.
+- **Residual projections** (attn `W_o`, FFN `W_2`): std $= 0.02/\sqrt{2N}$.
+  The residual stream is $x_0 + \sum_{k=1}^{2N} f_k$, the variances add
+  (∝ 2N), and the scaling cancels that growth.
+- A fixed 0.02 works because Pre-LN re-normalises the input to every
+  sublayer. Bonus: logits ≈ 0 at init, so **step-0 loss ≈ log V**
+  (tested: |loss − log 65| < 0.05).
+
+### Reproducibility
+Pass `rng = np.random.default_rng(seed)` explicitly. No global seed. Same
+seed gives identical weights (tested).
+
+### Code notes
+- Shapes are `[fan_in, fan_out]` (row-vector convention: `y = x @ W`).
+- `dtype` defaults to float32 (training). Pass float64 for gradient checks.
+- `gpt2_residual_std(n_layers)` is a helper. The model in Phase 5 decides
+  which weights get it.
+
+### Tests (`tests/test_initialization.py`)
+- Seeding works.
+- Shapes and dtypes are right.
+- Empirical variances match each formula within 2%.
+- A deep linear stack: 1/√D preserves the variance, while 1 explodes and
+  0.01 vanishes.
+- He init keeps a 20-layer ReLU stack's second moment O(1).
+- GPT-2 small init gives loss ≈ log V.
+
+---
+
 ## Self-check questions
 1. Why subtract the max rather than the mean or the min?
 2. What happens to masked (`-inf`) scores in softmax, and when does masking produce `nan`?
@@ -324,6 +384,10 @@ abla	ext{LSE} = 	ext{softmax}$.
 17. Why check gradients in float64? Quote the noise floors.
 18. Why norm-wise relative error and not element-wise?
 19. How does the VJP trick let you check a layer whose output is a tensor?
+20. Derive Var(y) = n_in·σ²·Var(x) for a linear layer. What happens after L layers?
+21. Where does Xavier's 2/(n_in+n_out) come from? And He's factor of 2?
+22. Why does GPT-2 scale residual output projections by 1/√(2N)?
+23. Why does small init give step-0 loss ≈ log V?
 
 ---
 
@@ -336,4 +400,7 @@ abla	ext{LSE} = 	ext{softmax}$.
 | Softmax + CE gradient | Bendersky (link above), section *"Softmax and cross-entropy loss"* |
 | Jacobians and VJPs in backprop | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (CS231n): https://cs231n.stanford.edu/handouts/derivatives.pdf |
 | GELU paper | Hendrycks & Gimpel, *Gaussian Error Linear Units (GELUs)*: https://arxiv.org/abs/1606.08415 (also in `papers/s1_hendrycks2016_gelu.pdf`) |
+| Xavier init | Glorot & Bengio 2010, *Understanding the difficulty of training deep feedforward neural networks*: https://proceedings.mlr.press/v9/glorot10a.html |
+| He init | He et al. 2015, *Delving Deep into Rectifiers*: https://arxiv.org/abs/1502.01852 |
+| GPT-2 residual scaling | Radford et al. 2019, §2.3: `papers/05_radford2019_gpt2.pdf` |
 | Manual backprop, start to finish | Karpathy, *Building makemore Part 4: Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |

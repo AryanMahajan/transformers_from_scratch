@@ -65,6 +65,8 @@ ids [B,T]
 | 3 | Cross-entropy is fused with log-softmax | Gives `∂L/∂z = p − y`, which is stable and avoids a V×V Jacobian. |
 | 4 | Gradients are checked in float64 | With float32 the finite-difference error (~1e-4) hides real bugs. |
 | 5 | Papers are not committed | Redistribution rights vary, so they are fetched with a script. |
+| 6 | Gradient checks use norm-wise relative error | Element-wise ratios blow up where the true gradient is ~0. |
+| 7 | GPT-2 init: N(0, 0.02²), residual projections 0.02/√(2N) | Matches Pre-LN; logits ≈ 0 at init so step-0 loss ≈ log V. |
 
 ## 5. Reproducibility
 

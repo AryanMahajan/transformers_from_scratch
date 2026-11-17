@@ -20,8 +20,8 @@ attempt at a state-of-the-art LLM.
 | Phase | Topic | Status |
 |------:|-------|--------|
 | 0 | Project setup, environment, papers | ✅ done |
-| 1 | Numerical foundations (Softmax, LogSoftmax, GELU, cross-entropy) | ⏳ next |
-| 2 | NN foundations (Parameter, Module, Linear, Embedding, LayerNorm) | ⬜ |
+| 1 | Numerical foundations (Softmax, LogSoftmax, GELU, cross-entropy) | ✅ done |
+| 2 | NN foundations (Parameter, Module, Linear, Embedding, LayerNorm) | ⏳ next |
 | 3 | Tokenization (char-level → BPE) | ⬜ |
 | 4 | Attention (causal mask, scaled dot-product, multi-head) | ⬜ |
 | 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ⬜ |
