@@ -113,6 +113,58 @@ attention that saves `B·H·T` matrices of size T×T.
 
 ---
 
+## 4. GELU and its derivative: `src/nn/activations.py`
+
+### What it's for
+GELU is the non-linearity in the FFN: `Linear(D→4D) → GELU → Linear(4D→D)`.
+Without it, the two linear layers would collapse into one.
+
+### Math
+Exact form: $\text{GELU}(x) = x\,\Phi(x)$, where $\Phi$ is the standard
+normal CDF. It acts as a *soft* gate: $x$ is scaled by "the probability a
+standard normal is ≤ $x$". ReLU's gate is hard (0 or 1).
+
+Tanh approximation (Hendrycks & Gimpel; used in GPT-2):
+
+$$\text{GELU}(x) \approx \tfrac12 x(1+\tanh u),\quad u = \sqrt{2/\pi}\,(x + 0.044715x^3)$$
+
+- $\sqrt{2/\pi}$ makes the slope at 0 match: $\tfrac12\sqrt{2/\pi} = 1/\sqrt{2\pi} = \Phi'(0)$.
+- $0.044715$ is fitted numerically. **Measured max error vs exact: 4.7e-4**
+  (at x ≈ 2.7).
+- We use the approximation because NumPy has no vectorised `erf`.
+
+### GELU vs ReLU
+| | ReLU | GELU |
+|---|---|---|
+| Smooth at 0 | ✗ (kink) | ✓ |
+| Gradient for x < 0 | 0 (units can "die") | small but non-zero |
+| Monotonic | ✓ | ✗: dip to **−0.170 at x ≈ −0.75** |
+
+### Derivative (product rule + chain rule)
+
+$$\text{GELU}'(x) = \tfrac12(1+\tanh u) + \tfrac12 x\,(1-\tanh^2 u)\,\sqrt{2/\pi}\,(1+3\cdot0.044715\,x^2)$$
+
+Sanity check: $\text{GELU}'(0) = \tfrac12 = \Phi(0)$.
+
+### Backward
+`dx = dout * GELU'(x)`. GELU is **element-wise**, so its Jacobian is
+diagonal and the VJP is just a multiply. Compare softmax, whose Jacobian is
+dense.
+
+### Gotchas
+- The backward pass needs the **input** `x` (softmax needed the output).
+  GELU isn't invertible near the dip, so the FFN must cache the
+  pre-activation.
+- Reuse `tanh u` from the forward computation in the backward. Don't call
+  `tanh` twice.
+
+### How it's tested (`tests/test_activations.py`)
+Limits (−10 → 0, 10 → 10); error vs exact erf GELU < 1e-3; the dip's
+location and depth; finite differences on `[B,T,F]` (rel. err < 1e-6);
+GELU'(0) = 0.5.
+
+---
+
 ## Self-check questions
 1. Why subtract the max rather than the mean or the min?
 2. What happens to masked (`-inf`) scores in softmax, and when does masking produce `nan`?
@@ -120,6 +172,10 @@ attention that saves `B·H·T` matrices of size T×T.
 4. Derive $J = \text{diag}(p) - pp^\top$ from the quotient rule without notes.
 5. Why do the rows of the softmax gradient sum to zero? Give a one-line argument.
 6. Why does `softmax_backward` take `p` and not `z`?
+7. What is GELU's gate, and how does it differ from ReLU's?
+8. Show that $\sqrt{2/\pi}$ makes the tanh approximation's slope at 0 match $\Phi'(0)$.
+9. Derive GELU'(x) from the tanh form. Why is the backward a plain element-wise multiply?
+10. Why does GELU backward need the input, while softmax backward needs the output?
 
 ---
 
@@ -130,4 +186,5 @@ attention that saves `B·H·T` matrices of size T×T.
 | LSE trick; ∇LSE = softmax | Wikipedia, LogSumExp: https://en.wikipedia.org/wiki/LogSumExp |
 | Softmax Jacobian derivation | Eli Bendersky, *The Softmax function and its derivative*: https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/ |
 | Jacobians and VJPs in backprop | Justin Johnson, *Derivatives, Backpropagation, and Vectorization* (CS231n): https://cs231n.stanford.edu/handouts/derivatives.pdf |
+| GELU paper | Hendrycks & Gimpel, *Gaussian Error Linear Units (GELUs)*: https://arxiv.org/abs/1606.08415 (also in `papers/s1_hendrycks2016_gelu.pdf`) |
 | Manual backprop, start to finish | Karpathy, *Building makemore Part 4: Becoming a Backprop Ninja*: https://www.youtube.com/watch?v=q8SA3rM6ckI |
