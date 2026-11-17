@@ -37,6 +37,28 @@ def relative_error(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.linalg.norm(a - b) / denom)
 
 
+def check_module(module, x: np.ndarray, rng: np.random.Generator, eps: float = 1e-6) -> dict[str, float]:
+    """Gradient-check a Module: dL/dx and dL/dp for every parameter.
+
+    L = sum(g * module(x)) for a random g. The module must already be float64
+    (module.astype(np.float64)). Returns {"input": err, "<param name>": err, ...}.
+    """
+    y = module.forward(x)
+    g = rng.standard_normal(y.shape)
+    module.zero_grad()
+    dx = module.backward(g)              # fills p.grad; before any re-forward
+
+    def loss() -> float:
+        return float(np.sum(g * module.forward(x)))
+
+    errors = {}
+    if np.issubdtype(x.dtype, np.floating):  # integer inputs (token ids) have no grad
+        errors["input"] = relative_error(dx, numerical_gradient(loss, x, eps))
+    for name, p in module.named_parameters():
+        errors[name] = relative_error(p.grad, numerical_gradient(loss, p.data, eps))
+    return errors
+
+
 def check_vjp(
     forward: Callable[[np.ndarray], np.ndarray],
     backward: Callable[[np.ndarray], np.ndarray],
