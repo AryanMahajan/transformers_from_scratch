@@ -161,6 +161,87 @@ clipped gradients.
 
 ---
 
+## 3. Batching and the training loop: `src/training/dataset.py` (`get_batch`), `src/training/trainer.py`
+
+### Batches: random windows, shifted by one
+```
+data:  t h e q u i c k b r o w n ...
+x   =  data[i   : i+T]      [B,T]
+y   =  data[i+1 : i+T+1]    [B,T]      y[t] = the token after x[t]
+```
+- **One window = T training examples.** Logits at position t see
+  x[0..t] (causal mask) and predict y[t]. So a window trains contexts of
+  length 1, 2, …, T at once. The mask is what makes this legal: without it,
+  position t could just read x[t+1] = y[t].
+- Starts are uniform over **every valid window**, i ∈ [0, N−T−1]
+  (`rng.integers(0, N-T)`, high exclusive). Tested: all starts reached, and the
+  last token is used as a target.
+- Implemented as one gather: `idx = starts[:,None] + arange(T)`, then
+  `data[idx]` and `data[idx+1]`.
+- Random sampling (not sequential epochs): with ~1M tokens and T = 64 there
+  are ~1M overlapping windows, so "epoch" isn't a natural unit. Steps are.
+
+### One training step (`train_step`)
+```
+logits = model(x)                         [B,T,V]
+loss, probs = cross_entropy(logits, y)    mean over B·T predictions
+opt.zero_grad()                           grads accumulate with += → must clear
+model.backward(dlogits.reshape(B,T,V))
+norm = clip_grad_norm(params, c)          returns the pre-clip norm
+opt.step()
+```
+`opt.lr = cosine_lr(step)` is set just before each step.
+
+### The loop (`train`)
+- **Eval before the step**, so step 0 records the **init loss ≈ ln V**
+  (first sanity check), and the final eval is at `max_steps`.
+- `estimate_loss`: mean over `eval_iters` random batches, forward only,
+  `model.eval()` then back to `train()`. A single batch is too noisy to
+  compare train and val. (Tested: it changes no parameters.)
+- **Two RNGs:** one for training batches, one for eval. Adding or removing
+  evals doesn't change which training batches are seen, so runs stay
+  comparable.
+- **Fail fast:** a non-finite loss raises immediately instead of silently
+  training on nan.
+- Returns `history`: per-step loss/lr/grad_norm, per-eval train/val loss, and
+  the optimizer (for checkpointing in Phase 7). Same seed → identical history
+  (tested).
+
+### Observation: the plateau, then a sudden drop
+Toy corpus `"thequickbrownfox" × 200` (period 16, 15 distinct letters), 1 block, D = 32:
+
+| | eval loss at steps 0, 100, 200, 300, 400 |
+|---|---|
+| tied, lr 3e-3 | 3.26, **2.70**, 0.92, 0.06, 0.02 |
+| tied, lr 1e-2 | 3.26, **2.70**, 0.15, 0.01, 0.006 |
+| untied, lr 3e-3 | 3.27, 0.11, 0.01, 0.01, 0.008 |
+
+- **3.26 = ln 26:** uniform at init.
+- **2.70 ≈ the unigram entropy** of the string. The model first learns letter
+  frequencies only.
+- **Why only the tied model plateaus:** at init the branches are tiny, so the
+  final h ≈ E[x_t], and logits = h·Eᵀ are largest for **the current token
+  itself** (its dot product with itself). The tied model starts biased toward
+  "repeat the current letter" and must first learn to move h away from
+  E[x_t]. The untied head has no such bias.
+- **Floor ≈ 0.005, not 0:** "o" is followed by "w" or "x". Position 0 of a
+  window sees one letter, so after a lone "o" the next letter is a coin flip.
+  Expected floor ≈ (1/24)·(2/16)·ln 2 ≈ 0.004.
+- Lesson: **a flat loss curve isn't necessarily a bug.** Check what the
+  plateau value means (here: unigram entropy) and train longer before
+  debugging.
+
+### Tests (`tests/test_trainer.py`)
+- `get_batch`: shapes, `y == x+1` on `arange` data, contiguous rows, all
+  valid starts reached, last token used, rejects short data, seeded.
+- `estimate_loss` at init ≈ ln V; parameters unchanged; train mode restored.
+- History lengths, eval steps, lr follows `cosine_lr` exactly, optimizer t.
+- Deterministic given the seed.
+- Learns the periodic corpus: ln V → < 0.1 in 300 steps.
+- Logging works.
+
+---
+
 ## Self-check questions
 1. Why does one SGD learning rate struggle with very different curvatures? What did the quadratic experiment show?
 2. Write the Adam update. What do m and v estimate, and over roughly how many steps?
@@ -174,6 +255,11 @@ clipped gradients.
 10. Write the warmup + cosine schedule. Why warm up, even with pre-LN?
 11. Where in the training step does clipping go, and why there?
 12. Why log the pre-clip gradient norm?
+13. How are x and y built from one window? Why does one window give T training examples, and why does that need the causal mask?
+14. What is the range of valid window starts? What off-by-one bug would make the last token never be a target?
+15. Why must `zero_grad` come before `backward` in every step?
+16. Why average the eval loss over several batches, and why use a separate RNG for eval?
+17. The loss sits at 2.70 for 100 steps, then drops. What does 2.70 correspond to? Why does the tied model plateau but the untied one doesn't?
 
 ---
 
