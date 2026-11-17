@@ -45,6 +45,7 @@ pip install -r requirements-dev.txt
 python scripts/download_papers.py   # fetch reference PDFs into papers/
 python scripts/prepare_data.py      # download + split + tokenize Tiny Shakespeare
 python scripts/overfit_tiny.py      # midterm gate: memorise 257 chars, plot loss curve
+python scripts/train.py --run baseline [--device gpu] [--resume]   # real run (GPU: pip install -r requirements-gpu.txt)
 pytest                              # run the test suite
 ```
 

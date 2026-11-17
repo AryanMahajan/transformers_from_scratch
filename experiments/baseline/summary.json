@@ -1,0 +1,59 @@
+{
+  "run": "baseline",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 66,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 204032,
+  "steps": 3000,
+  "seconds_this_session": 1714.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 7773.259200600332,
+  "final": {
+    "train_loss": 1.842791577577591,
+    "val_loss": 1.9484718179702758,
+    "val_bpc": 2.81105062909762,
+    "val_perplexity": 7.017954669545733,
+    "generalisation_gap": 0.10568024039268487
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 4.189654742026425,
+      "bpc": 6.044394119358453,
+      "perplexity": 65.99999999999997
+    },
+    "unigram": {
+      "nats": 3.3473313333733072,
+      "bpc": 4.829178314869912,
+      "perplexity": 28.4267707546188
+    },
+    "bigram": {
+      "nats": 2.4838367181487007,
+      "bpc": 3.5834189156510483,
+      "perplexity": 11.987167686401719
+    }
+  },
+  "sample_greedy": "ROMEO:\nI will the so the so the sould the her the sould\nThe shall the the some the the some the his the songe.\n\nCORIO:\nI will the the shall the the shall the so the sould\nThe shall the the shall the some the some the seend\nThe the shall the the the the some the the songe.\n\nCOUCES:\nI will the the shall the"
+}
