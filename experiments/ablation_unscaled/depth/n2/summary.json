@@ -1,0 +1,117 @@
+{
+  "run": "depth/n2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 2,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 132736,
+  "steps": 3000,
+  "seconds_this_session": 90.2,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 143606.35409663006,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.5815750765800476,
+    "val_loss": 3.729787003993988,
+    "val_bpc": 2.6026716362554847,
+    "val_perplexity_per_token": 41.67023162582338,
+    "val_perplexity_per_char": 6.074104109071641,
+    "generalisation_gap": 0.14821192741394063
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.262453389167786,
+      5.5239924669265745,
+      4.649790096282959,
+      4.36328604221344,
+      4.150453853607178,
+      4.0331453561782835,
+      3.9381582140922546,
+      3.825858271121979,
+      3.760142171382904,
+      3.6774303555488586,
+      3.639302337169647,
+      3.605501651763916,
+      3.600130045413971
+    ],
+    "val_loss": [
+      6.263195204734802,
+      5.463200378417969,
+      4.596661520004273,
+      4.331982946395874,
+      4.181691718101502,
+      4.072399353981018,
+      4.033018028736114,
+      3.9436298847198485,
+      3.892225503921509,
+      3.8315483808517454,
+      3.793485867977142,
+      3.7649609446525574,
+      3.7454785466194154
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.7454785466194154,
+    "val_bpc": 2.6136213051981243
+  },
+  "sample_greedy": "ROMEO:\n\nHENRY BOLINGBROKE:\nIt, sir, sir, sir, sir,\nAnd, sir, sir, sir, I am is,\nAnd, I am, and I'll before,\nAnd, I will before, and I'll before,\nAnd, I am not, and I amter,\nAnd, I will before, and I'll before,\nAnd, I am thoughter, and I'll beger,\nAnd, I am, I am, I'll before,\nAnd, I am, and I am thoughter,\nAnd, sir, sir, sir, sir, and I'll begry,\nAnd, sir, sir, sir, sir, sir,\nAnd, sir, sir, sir, sir, sir,\nI'll bety, and I am thoughter,\nAnd, sir, sir, and I'll before,\nAnd, sir, sir, sir, and I'll before,\nAnd, sir, sir, sir, sir, sir,\nI'll before, and I am thoughter,\nAnd, sir, sir, sir, sir, sir,\nI'll before, and I am thoughts,\nAnd, sir, sir, sir, sir, sir,\nI'll before, and I am thoughts,\nAnd,"
+}

@@ -1,0 +1,117 @@
+{
+  "run": "heads/h8",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 8,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 196.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 65875.61454091812,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.4799673700332643,
+    "val_loss": 3.662567903995514,
+    "val_bpc": 2.555765674924903,
+    "val_perplexity_per_token": 38.96126330709856,
+    "val_perplexity_per_char": 5.879794261432449,
+    "generalisation_gap": 0.18260053396224984
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.262233543395996,
+      5.513050961494446,
+      4.5868775129318236,
+      4.280861926078797,
+      4.067405128479004,
+      3.9610318660736086,
+      3.8494807362556456,
+      3.7435325026512145,
+      3.642901611328125,
+      3.5742601633071898,
+      3.5207313299179077,
+      3.486697196960449,
+      3.5016481399536135
+    ],
+    "val_loss": [
+      6.26292233467102,
+      5.452879285812378,
+      4.5177265167236325,
+      4.276790809631348,
+      4.116914129257202,
+      4.0403431296348575,
+      3.964951586723328,
+      3.887681519985199,
+      3.7934769988059998,
+      3.769052565097809,
+      3.7065048217773438,
+      3.6841949343681337,
+      3.685918152332306
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.6841949343681337,
+    "val_bpc": 2.570857169014774
+  },
+  "sample_greedy": "ROMEO:\n\nKING RICHARD III:\nIs, my lord, sir,\nIs not, my lord, sir, and I am not.\n\nGLOUCESTER:\nIt not, I'll been, I'll beeny.\n\nLUCIO:\nIt, my lord, sir, sir, sir, sir, sir,\nIte, my lords, and I am a pawected\nTo been the crowny.\n\nCLARENCE:\nI'll been, my lord,\nWhose, my lord, and I ameny.\n\nPRINCE ED:\nNo, my lord,\nWhy, my lord, I amen,\nWee not, and I ameny.\n\nPRINCE ED:\nNo, sir, sir, and I ameny.\n\nCORIOLANUS:\nI'll been, I ameny,\nIs not, my lord, and I ameny\nIs the clage, and the child,\nIse, I am the counts,\nWhose you, and I ameny,\nIs not not, and I ameny,\nIs noth not, and I am the countge.\n\nKING"
+}

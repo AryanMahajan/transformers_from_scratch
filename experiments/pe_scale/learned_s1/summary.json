@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/learned_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true,
+    "scale_emb": false
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 186.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 77914.30114480415,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.7242127418518067,
+    "val_loss": 3.1682682633399963,
+    "val_bpc": 2.2108399048560585,
+    "val_perplexity_per_token": 23.76629174066202,
+    "val_perplexity_per_char": 4.629447112035005,
+    "generalisation_gap": 0.4440555214881896
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.233822441101074,
+      3.8997334480285644,
+      3.5293932795524596,
+      3.3282893180847166,
+      3.1989620208740233,
+      3.080838942527771,
+      2.990246856212616,
+      2.8820247650146484,
+      2.869226324558258,
+      2.8137300968170167,
+      2.7547749996185305,
+      2.7429319739341738,
+      2.7239371299743653
+    ],
+    "val_loss": [
+      6.22950131893158,
+      3.9507686495780945,
+      3.740165960788727,
+      3.558607816696167,
+      3.4698169112205504,
+      3.367444598674774,
+      3.3577115297317506,
+      3.2588915109634398,
+      3.2381959915161134,
+      3.2337300896644594,
+      3.2038528442382814,
+      3.196730351448059,
+      3.184844160079956
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.184844160079956,
+    "val_bpc": 2.2224066823273714
+  },
+  "sample_greedy": "ROMEO:\nIs it before.\n\nPERDITA:\nNay, my lord,\nI'll not be appeard.\n\nPAULINA:\nNay, my lord,\nI'll not be appeard.\n\nPOLIXENES:\nNo, my lord,\nI'll not be appeard.\n\nPAULINA:\nNay, my lord.\n\nPOLIXENES:\nNo, my lord,\nI'll please you, and I'll please you.\n\nPAULINA:\nI'll not, sir, sir, sir, I'll be away.\n\nPOLIXENES:\nI do not, sir, sir, sir, sir, I know not\nthat you, sir, sir, I'll be away.\n\nProvost:\nI am advise, sir.\n\nProvost:\nI am advise, sir.\n\nProvost:\nI am advise.\n\nDUKE VINCENTIO:\nIt is a passage.\n\nProvost:\nI am advise.\n\nProvost:\nIt is a put"
+}

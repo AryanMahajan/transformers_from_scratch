@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/learned_scaled_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 211.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 76532.28833280627,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.6843236589431765,
+    "val_loss": 3.163266339302063,
+    "val_bpc": 2.2073495270392303,
+    "val_perplexity_per_token": 23.647711366955207,
+    "val_perplexity_per_char": 4.61826041749508,
+    "generalisation_gap": 0.47894268035888654
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.233885908126831,
+      3.847265636920929,
+      3.544258177280426,
+      3.340686798095703,
+      3.1722344160079956,
+      3.0419779300689695,
+      2.9437939643859865,
+      2.8257236003875734,
+      2.812356972694397,
+      2.7687483191490174,
+      2.7140950083732607,
+      2.699655258655548,
+      2.6897337436676025
+    ],
+    "val_loss": [
+      6.22807559967041,
+      3.94257310628891,
+      3.7625277042388916,
+      3.5921794176101685,
+      3.4588698983192443,
+      3.348139560222626,
+      3.3313554644584658,
+      3.2172651052474976,
+      3.2162648916244505,
+      3.2082569003105164,
+      3.1906998991966247,
+      3.177584707736969,
+      3.1745133638381957
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.1745133638381957,
+    "val_bpc": 2.215197779961211
+  },
+  "sample_greedy": "ROMEO:\nI'll tell thee, my lord.\n\nNurse:\nNo, my lord, I'll be appeard.\n\nROMEO:\nNo, my lord, I'll be appeard.\n\nROMEO:\nNo, my lord, I'll be appear to the crown.\n\nNurse:\nNo, my lord, I'll be away.\n\nNurse:\nNo, my lord, I'll beggin the crown,\nAnd I am approach'd, and I'll not believe\nTo be a pretty of the crown,\nAnd take the boint to the crown, and my soul,\nAnd, in the boint to the crown, and my soul,\nAnd, in my soul, and myself, and myself,\nIt is a banish'd with my soul,\nWhose falsehood, and my soul, and my lord,\nWho bestridely, and my soul, and my lords,\nStand for myself, and myself, and myself,\nIt is a bestred, and my soul,\nWhose falseh"
+}

@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/learned_scaled_s0",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 365.0,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 28757.618991590884,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.6801662158966066,
+    "val_loss": 3.1800156140327456,
+    "val_bpc": 2.219037288893384,
+    "val_perplexity_per_token": 24.04712902179317,
+    "val_perplexity_per_char": 4.655826473763079,
+    "generalisation_gap": 0.49984939813613893
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.231882357597351,
+      3.839966690540314,
+      3.5507967472076416,
+      3.3215263962745665,
+      3.1266807913780212,
+      3.026887023448944,
+      2.955838704109192,
+      2.8619033455848695,
+      2.7936319231987,
+      2.75545574426651,
+      2.7091063380241396,
+      2.685358393192291,
+      2.7026719570159914
+    ],
+    "val_loss": [
+      6.228561449050903,
+      3.9668251633644105,
+      3.756554877758026,
+      3.5793632864952087,
+      3.4794904828071593,
+      3.3817041993141173,
+      3.347946035861969,
+      3.2844283103942873,
+      3.231079840660095,
+      3.2348355770111086,
+      3.179842674732208,
+      3.1995729207992554,
+      3.213618791103363
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2500,
+    "val_loss": 3.179842674732208,
+    "val_bpc": 2.2189166106316436
+  },
+  "sample_greedy": "ROMEO:\nNow, my lord,\nI'll not be a mother, and fearful wife,\nAnd take the queen and the queen's party.\n\nKING RICHARD II:\nWe are you, I'll bear thee, I'll bear thee?\n\nKING RICHARD III:\nAy, my lord, I'll bear thee, I'll bear thee.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, I'll be advocented.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, and I'll bear thee.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, and my lord.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, and my lord,\nI'll tell thee, and my lord, I'll bear thee.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, and I'll bear thee.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, I'll bear thee,\nAnd I, I, I'll tell thee, and my lord.\n\nKING RICHARD III:\nWhy, then, I'll tell thee, I"
+}

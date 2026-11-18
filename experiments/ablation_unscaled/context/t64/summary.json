@@ -1,0 +1,117 @@
+{
+  "run": "context/t64",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 64,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 64,
+    "block_size": 64,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 153.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 83987.19016539032,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.181673448085785,
+    "val_loss": 3.454323172569275,
+    "val_bpc": 2.410451034892555,
+    "val_perplexity_per_token": 31.636868733706947,
+    "val_perplexity_per_char": 5.316405083270509,
+    "generalisation_gap": 0.27264972448349
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.255611991882324,
+      5.528184914588929,
+      4.349233913421631,
+      4.082319891452789,
+      3.8808015108108522,
+      3.7000606417655946,
+      3.579431641101837,
+      3.447807455062866,
+      3.369611918926239,
+      3.2945597887039186,
+      3.2307435631752015,
+      3.2140877842903137,
+      3.194909417629242
+    ],
+    "val_loss": [
+      6.255961394309997,
+      5.448851728439331,
+      4.319353103637695,
+      4.127301025390625,
+      3.99143568277359,
+      3.8318504095077515,
+      3.74288295507431,
+      3.6705782413482666,
+      3.6079111218452455,
+      3.5425470590591432,
+      3.5241702079772947,
+      3.4608629822731016,
+      3.4471246719360353
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.4471246719360353,
+    "val_bpc": 2.4054278704594023
+  },
+  "sample_greedy": "ROMEO:\nI'll not not, my lord, and myself,\nAnd I'll been the royal, and I'll\nAnever, and that I'll been it.\n\nSecond Murderer:\nIt is advent, and I'll been advice\nAnd I have a ways.\n\nSecond Murderer:\nIt is advice, and I'll been the way.\n\nKING RICHARD III:\nIs, my lord, and I'll been,\nAnd, I'll been the rights of the royal,\nAnd I'll been the rights of the rights\nTo the rights of the rights of the queen\nAnd into the rights of the queen,\nAnd, and I'll been the ways of the queen,\nAnd, I'll been the rights of the rights\nTo the rights of the rights of the queen\nAnd into the rights of the queen,\nAnd, and I'll been the ways of the queen,\nAnd, I'll been"
+}

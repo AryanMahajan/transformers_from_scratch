@@ -1,0 +1,117 @@
+{
+  "run": "seeds/s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 168.2,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 79565.88744877346,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.453772790431976,
+    "val_loss": 3.6551811504364013,
+    "val_bpc": 2.550611146274413,
+    "val_perplexity_per_token": 38.674526387970914,
+    "val_perplexity_per_char": 5.858824139962978,
+    "generalisation_gap": 0.2014083600044252
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.260406875610352,
+      5.292917037010193,
+      4.662677836418152,
+      4.476774430274963,
+      4.308698201179505,
+      4.052454018592835,
+      3.9137740612030028,
+      3.725178575515747,
+      3.643857502937317,
+      3.5570924520492553,
+      3.501750421524048,
+      3.480784022808075,
+      3.4861800193786623
+    ],
+    "val_loss": [
+      6.258615899085998,
+      5.217030191421509,
+      4.588140606880188,
+      4.426122879981994,
+      4.281486392021179,
+      4.077400493621826,
+      3.997516667842865,
+      3.8836370944976806,
+      3.7918756723403932,
+      3.7358208656311036,
+      3.722377669811249,
+      3.708573269844055,
+      3.6603431701660156
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.6603431701660156,
+    "val_bpc": 2.554213239992277
+  },
+  "sample_greedy": "ROMEO:\nItot you, I have been, and being,\nAnd I'll been, and being, and I'll been.\n\nKING RICHARD II:\nI'll been, my lord, I'll been to the queen.\n\nLEONTES:\nIt is, sir, sir, I'll been,\nAnd, my lord, and I'll be percoved.\n\nKING RICHARD III:\nIt not, my lord, and I'll been.\n\nKING RICHARD III:\nIt is the preto, and the queen,\nAnd I have been to the cloused.\n\nLEONTES:\nIt is the preto, and I'll been.\n\nHENRY BOLINGS:\nIt thou, my lord, and I'll be perclious.\n\nKING RICHARD II:\nIt is the clople, and the roy,\nAnd I have been to the cloused.\n\nLEONTES:\nIt is the preto, and the roy,\nAnd I have been to the cloused.\n\nCORIOLANUS:\nIt is, I'll be"
+}

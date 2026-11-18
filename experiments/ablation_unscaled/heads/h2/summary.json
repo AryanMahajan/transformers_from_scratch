@@ -1,0 +1,117 @@
+{
+  "run": "heads/h2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 2,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 149.9,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 85599.43360154501,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.807812714576721,
+    "val_loss": 3.9121204924583437,
+    "val_bpc": 2.729905228484083,
+    "val_perplexity_per_token": 50.00487458911063,
+    "val_perplexity_per_char": 6.634120552781597,
+    "generalisation_gap": 0.1043077778816226
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.2622342824935915,
+      5.523864603042602,
+      4.735290241241455,
+      4.578258419036866,
+      4.4499811887741085,
+      4.37113139629364,
+      4.266940927505493,
+      4.127093648910522,
+      4.012013339996338,
+      3.925812292098999,
+      3.868559920787811,
+      3.82445307970047,
+      3.8216763615608214
+    ],
+    "val_loss": [
+      6.26292314529419,
+      5.463539052009582,
+      4.720396733283996,
+      4.525364780426026,
+      4.442149066925049,
+      4.349669861793518,
+      4.269500327110291,
+      4.160522747039795,
+      4.050476026535034,
+      4.008534872531891,
+      3.9711763143539427,
+      3.926699960231781,
+      3.924672257900238
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.924672257900238,
+    "val_bpc": 2.7386639387979876
+  },
+  "sample_greedy": "ROMEO:\nI'll bet is, and I'll, and bet,\nAnd I'll bet, and roght, and I'll\nAnd I'll tell, and I'll bet, and roe,\nAnd, I'll take, and I'll the credeee,\nAnd, and the credection, and the crede,\nAnd, my lords, and the crets,\nAnd, and I'll betts, and I'll the queen,\nAnd, and till you have addddd,\nAnd, and the crefore the creddd,\nAnd, and twell, and I'll tell, and I'll\nAnd twell, and I'll tell, and I'll betist,\nAnd, and tell, and I'll tell, and the crefore\nAnd twicks, and I'll betters,\nAnd, and I'll betters, and I'll betist,\nAnd, and I'll bets, and the crefore,\nAnd I'll bets, and I'll the crets,\nAnd I'll bets, and I'll betters,\nAnd, and twell, and I'll t"
+}

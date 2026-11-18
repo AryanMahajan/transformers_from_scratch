@@ -125,3 +125,38 @@ def test_too_long_sequence_and_bad_pos_rejected():
         _model()(np.zeros((1, 17), dtype=int))
     with pytest.raises(ValueError):
         _model(pos="rope")
+
+
+@pytest.mark.parametrize("pos", ["sinusoidal", "learned"])
+@pytest.mark.parametrize("tie", [True, False])
+def test_scale_emb_gradient_check(pos, tie):
+    """sqrt(D) token scaling: backward must multiply the lookup gradient by sqrt(D).
+
+    The embedding gradient (the only one the scaling changes) is checked tightly. Every
+    parameter gets a looser 1e-7 bound: with weights x20 the attention q/k gradients sit at a
+    finite-difference noise floor of ~1e-8 to 6e-8 whether or not scale_emb is on (measured).
+    Forgetting the sqrt(D) in backward gives a tok_emb.E error of 0.17-0.48 (measured)."""
+    rng = np.random.default_rng(4)
+    m = _scale_weights(_model(pos=pos, tie_weights=tie, scale_emb=True), 20.0)
+    errs = check_module(m, _ids(rng, B=2, T=5), rng)
+    assert errs["tok_emb.E"] < 1e-9
+    assert max(errs.values()) < 1e-7, max(errs, key=errs.get)
+
+
+def test_scale_emb_forward_scales_only_the_token_part():
+    a, b = _model(), _model(scale_emb=True)                      # same seed -> same weights
+    ids = np.array([[1, 2, 3]])
+    e = a.tok_emb(ids)
+    np.testing.assert_allclose(b.pos_enc(b.tok_emb(ids) * np.sqrt(8)), a.pos_enc(e * np.sqrt(8)))
+    assert not np.allclose(a(ids), b(ids))
+    assert GPTConfig(vocab_size=3).scale_emb is False             # old configs / checkpoints unchanged
+
+
+def test_scale_emb_balances_tokens_and_sinusoidal_positions():
+    """The Phase 8 finding: without scaling, position rows are ~35x the token rows at init."""
+    for scale, lo, hi in ((False, 20, 50), (True, 2, 8)):
+        m = GPT(GPTConfig(vocab_size=512, d_model=64, n_heads=4, max_len=128, scale_emb=scale),
+                np.random.default_rng(0))
+        tok = np.linalg.norm(m.tok_emb(np.arange(512)) * (8.0 if scale else 1.0), axis=1).mean()
+        pos = np.linalg.norm(m.pos_enc.pe, axis=1).mean()
+        assert lo < pos / tok < hi

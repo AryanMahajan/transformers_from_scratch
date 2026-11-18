@@ -1,0 +1,117 @@
+{
+  "run": "positional_encoding/learned",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 162.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 79269.064288994,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.7180240249633787,
+    "val_loss": 3.1631907176971437,
+    "val_bpc": 2.2072967577507963,
+    "val_perplexity_per_token": 23.645923156683487,
+    "val_perplexity_per_char": 4.6180914990111,
+    "generalisation_gap": 0.44516669273376497
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.238487124443054,
+      3.8910810232162474,
+      3.52277410030365,
+      3.3076993107795714,
+      3.147653818130493,
+      3.064064013957977,
+      3.0038270592689513,
+      2.9072392702102663,
+      2.8369784116744996,
+      2.799323284626007,
+      2.746303141117096,
+      2.719966506958008,
+      2.7412649273872374
+    ],
+    "val_loss": [
+      6.237593293190002,
+      3.99521564245224,
+      3.721449053287506,
+      3.5801825284957887,
+      3.474539613723755,
+      3.383054327964783,
+      3.349985718727112,
+      3.2769732594490053,
+      3.217302441596985,
+      3.2263278365135193,
+      3.17382652759552,
+      3.1836054801940916,
+      3.1915276050567627
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2500,
+    "val_loss": 3.17382652759552,
+    "val_bpc": 2.214718500794425
+  },
+  "sample_greedy": "ROMEO:\nIt is not to be a mother.\n\nFRIAR LAURENCE:\nWhy, then, I'll not, and I'll tell thee,\nAnd I'll not be a wife.\n\nROMEO:\nIt is not to me.\n\nFRIAR LAURENCE:\nI'll not, my lord,\nAnd I'll not be a word.\n\nROMEO:\nI am after, my lord.\n\nBENVOLIO:\nI am after, and I am afternocented.\n\nROMEO:\nIt is a matter to be a maid, and I\nTo think it before the flatter of the fleshood\nTo become my breath.\n\nBENVOLIO:\nI am after, and I am appared.\n\nROMEO:\nIt is a matter to be a maid, and I\nthere to the matter.\n\nBENVOLIO:\nI'll not please you.\n\nROMEO:\nI'll not, my lord.\n\nROMEO:\nI'll not, I'll be so.\n\n"
+}

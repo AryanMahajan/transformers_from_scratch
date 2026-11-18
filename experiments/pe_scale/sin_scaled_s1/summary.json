@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/sin_scaled_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 200.5,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 79130.09921278791,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.707355272769928,
+    "val_loss": 3.159413242340088,
+    "val_bpc": 2.2046608088459565,
+    "val_perplexity_per_token": 23.5567697580606,
+    "val_perplexity_per_char": 4.609661485073141,
+    "generalisation_gap": 0.45205796957015965
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.246915316581726,
+      4.061856424808502,
+      3.5706674575805666,
+      3.355664622783661,
+      3.2075185418128966,
+      3.070877432823181,
+      2.965917778015137,
+      2.855691933631897,
+      2.8396744251251222,
+      2.7930700540542603,
+      2.7326797008514405,
+      2.7234325408935547,
+      2.713455832004547
+    ],
+    "val_loss": [
+      6.243681120872497,
+      4.10823621749878,
+      3.766772997379303,
+      3.5716363191604614,
+      3.4494264364242553,
+      3.345244121551514,
+      3.3318849921226503,
+      3.2075765132904053,
+      3.226483166217804,
+      3.207394707202911,
+      3.1913394927978516,
+      3.177291524410248,
+      3.1795364737510683
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.177291524410248,
+    "val_bpc": 2.217136399971979
+  },
+  "sample_greedy": "ROMEO:\nNo, my lord, I'll not be away.\n\nNurse:\nI'll be away, sir, I'll be away.\n\nJULIET:\nIt is a word, sir, I'll be away.\n\nJULIET:\nIt is a word, and I am appear,\nI'll tell thee, and I'll tell you, and I'll plead.\n\nNurse:\nI'll be away, sir, sir, I'll be away.\n\nJULIET:\nI'll be away the cursed in the corse,\nAnd I have been appear to the country's power,\nAnd I have been appear to the country's power,\nAnd I have been times of the royal power,\nAnd I have done told the right of royalty,\nAnd, in the royalties of the royalties\nAnd leadings, and I'll plead to the crown.\n\nKING EDWARD IV:\nNow, my lord, my lord, and I will not be,\nAnd, as"
+}

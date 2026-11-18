@@ -1,0 +1,117 @@
+{
+  "run": "seeds/s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 347.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 31248.766312710788,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.6541516065597532,
+    "val_loss": 3.8277336406707763,
+    "val_bpc": 2.6710194890611056,
+    "val_perplexity_per_token": 45.95826217909829,
+    "val_perplexity_per_char": 6.3687908242926445,
+    "generalisation_gap": 0.17358203411102302
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.250684523582459,
+      5.515484237670899,
+      4.672377133369446,
+      4.498562312126159,
+      4.291049170494079,
+      4.10170624256134,
+      3.979592275619507,
+      3.870466208457947,
+      3.8252663135528566,
+      3.756305968761444,
+      3.690461039543152,
+      3.663551592826843,
+      3.664441239833832
+    ],
+    "val_loss": [
+      6.248779058456421,
+      5.45841703414917,
+      4.601997041702271,
+      4.431907105445862,
+      4.241183590888977,
+      4.127087521553039,
+      4.036829936504364,
+      3.9811285972595214,
+      3.954554092884064,
+      3.9226059675216676,
+      3.8741151332855224,
+      3.839616048336029,
+      3.825843906402588
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.825843906402588,
+    "val_bpc": 2.669700819181403
+  },
+  "sample_greedy": "ROMEO:\nIt, I have be afters, and I have\nIsen, and I have be add,\nAnd being, and I have be ado, and I have\nthefore the present of the clagers.\n\nCORIOLANUS:\nIt is the clold, and before,\nAnd betters, and I have be away.\n\nCORK:\nWhy, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nAnd I'll before, and I'll before, and not\nTo before, and be quen, and I'll be\nAdward, I'll before, and I'll before,\nAnd I have the papers of the papers.\n\nKING RICHARD III:\nWhy, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nAnd I have the prestt, and I'll before\nAnd betot, I have the papers,\nAnd I have the prestt, and"
+}

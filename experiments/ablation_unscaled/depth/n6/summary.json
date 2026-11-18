@@ -1,0 +1,117 @@
+{
+  "run": "depth/n6",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 6,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 332416,
+  "steps": 3000,
+  "seconds_this_session": 242.1,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 53592.372841758435,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.2898639750480654,
+    "val_loss": 3.531670207977295,
+    "val_bpc": 2.464424340872048,
+    "val_perplexity_per_token": 34.18100936021035,
+    "val_perplexity_per_char": 5.519066775454954,
+    "generalisation_gap": 0.24180623292922965
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.261711812019348,
+      5.381272673606873,
+      4.57798137664795,
+      4.196956300735474,
+      3.9635578036308288,
+      3.8398662924766542,
+      3.734028327465057,
+      3.5956565976142882,
+      3.5007112622261047,
+      3.4114044427871706,
+      3.358111488819122,
+      3.311504054069519,
+      3.3148954629898073
+    ],
+    "val_loss": [
+      6.262329459190369,
+      5.327881097793579,
+      4.528774738311768,
+      4.188880562782288,
+      4.0473540902137755,
+      3.973394048213959,
+      3.909491264820099,
+      3.7901980757713316,
+      3.708526945114136,
+      3.654640221595764,
+      3.587975525856018,
+      3.55625638961792,
+      3.5582528352737426
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.55625638961792,
+    "val_bpc": 2.481580751554845
+  },
+  "sample_greedy": "ROMEO:\nI'll betway, I'll been,\nAnd, I'll bear the country of the queen,\nAnd take the child of the child of the queen,\nAnd take the child of the clower,\nAnd take the childs of the clower,\nAnd take the child of the clagers of the queen,\nAnd, that I'll been to been, and pretrance,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been, and not been,\nAnd, that I'll been'd to been'd.\n\nKING RICHARD III:\nWhy, my lord, I'll be advied,\nAnd, that I'll been, and I'll been to be\nTo make the childen of the clase of the queen,\nAnd,"
+}

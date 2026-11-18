@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/sin_scaled_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 181.1,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 78810.86536003792,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.789291036128998,
+    "val_loss": 3.205964937210083,
+    "val_bpc": 2.2371449093396354,
+    "val_perplexity_per_token": 24.67930250796332,
+    "val_perplexity_per_char": 4.714631161520851,
+    "generalisation_gap": 0.41667390108108515
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.257081508636475,
+      4.1290425062179565,
+      3.624691295623779,
+      3.383675444126129,
+      3.23940486907959,
+      3.0965296745300295,
+      3.0429781556129454,
+      2.9506829738616944,
+      2.8948842525482177,
+      2.836397957801819,
+      2.8004731059074404,
+      2.8052020907402038,
+      2.822770059108734
+    ],
+    "val_loss": [
+      6.2543055534362795,
+      4.179592537879944,
+      3.7702065467834474,
+      3.581478178501129,
+      3.4897523880004884,
+      3.3828137040138246,
+      3.3775182485580446,
+      3.3163142800331116,
+      3.2797628045082092,
+      3.2326040387153627,
+      3.2403291344642637,
+      3.2546175956726073,
+      3.2188472628593443
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.2188472628593443,
+    "val_bpc": 2.2461342868940197
+  },
+  "sample_greedy": "ROMEO:\nIt is, and being a party.\n\nROMEO:\nI'll not be so, sir, I'll not be so,\nI'll tell you to bear the country's performent.\n\nROMEO:\nI am a cased, sir, I'll please you.\n\nROMEO:\nI am a cased, sir, sir, I'll be so,\nI'll bear the country's performent.\n\nROMEO:\nI am a country, and I am a charge,\nI'll perform'd the course, and I'll perform\nTo the people, and the country's prevate,\nAnd I have perform'd to the course of my crown,\nAnd I have perform'd to the crown,\nAnd I have perform'd to the crown,\nAnd I have prevented to the crown,\nAnd I have acccession of the Tower,\nAnd I have perforced the crown'd of my crown,\nAnd I have a"
+}

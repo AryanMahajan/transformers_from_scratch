@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/learned_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true,
+    "scale_emb": false
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 211.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 77696.13529737903,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.7243428659439086,
+    "val_loss": 3.189153456687927,
+    "val_bpc": 2.225413739846143,
+    "val_perplexity_per_token": 24.267874937802176,
+    "val_perplexity_per_char": 4.676449926463114,
+    "generalisation_gap": 0.46481059074401854
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.241369962692261,
+      3.9327899694442747,
+      3.523057723045349,
+      3.3117995858192444,
+      3.184499144554138,
+      3.052692723274231,
+      3.0145487070083616,
+      2.90983327627182,
+      2.8451197147369385,
+      2.7816200256347656,
+      2.7410186529159546,
+      2.7481548309326174,
+      2.7566113114356994
+    ],
+    "val_loss": [
+      6.239985108375549,
+      3.9895051240921022,
+      3.694955825805664,
+      3.5448575258255004,
+      3.4537966132164,
+      3.3733091711997987,
+      3.360196590423584,
+      3.3030736207962037,
+      3.249553549289703,
+      3.2070805549621584,
+      3.227834153175354,
+      3.2405146956443787,
+      3.205056941509247
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.205056941509247,
+    "val_bpc": 2.236511303545557
+  },
+  "sample_greedy": "ROMEO:\nIt is a man, and so, and I'll bear him.\n\nJULIET:\nIt is the queen, and I'll not believe it.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll bear you, sir, sir, sir, sir, sir,\nI'll be away.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not better.\n\nJULIET:\nI will not be so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so.\n\nNurse:\nI'll be not so.\n\nJULIET:\nI will not be so."
+}

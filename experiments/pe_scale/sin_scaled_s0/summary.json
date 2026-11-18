@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/sin_scaled_s0",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 269.0,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 77418.55997084349,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.706324744224548,
+    "val_loss": 3.1991026473045348,
+    "val_bpc": 2.2323563551198347,
+    "val_perplexity_per_token": 24.5105257393667,
+    "val_perplexity_per_char": 4.699008427361962,
+    "generalisation_gap": 0.4927779030799866
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.257374358177185,
+      4.075256073474884,
+      3.535267782211304,
+      3.3038156509399412,
+      3.12911696434021,
+      3.0451597452163695,
+      2.9769102692604066,
+      2.8859052658081055,
+      2.8222400903701783,
+      2.780864191055298,
+      2.7370015144348145,
+      2.713089942932129,
+      2.727889096736908
+    ],
+    "val_loss": [
+      6.257257652282715,
+      4.170252013206482,
+      3.733560621738434,
+      3.548855423927307,
+      3.4740813255310057,
+      3.3577455997467043,
+      3.3534078001976013,
+      3.302177309989929,
+      3.2488324642181396,
+      3.258512330055237,
+      3.197316575050354,
+      3.2144227147102358,
+      3.2409302234649657
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2500,
+    "val_loss": 3.197316575050354,
+    "val_bpc": 2.231110021323486
+  },
+  "sample_greedy": "ROMEO:\nIt is the queen, and I am advanced\nTo take my mind.\n\nMERCUTIO:\nIt is the matter, I am advoided.\n\nROMEO:\nIt is the children, I am advise\nTo take my mind of yours.\n\nMERCUTIO:\nIt is a pretty, and I'll bear the crown,\nIs nothing, and beggin to bear the crown,\nAnd look'd in the crown, and looks of the crown,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,\nAnd, in the queen of the queen,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,\nAnd, by the queen of the queen,"
+}

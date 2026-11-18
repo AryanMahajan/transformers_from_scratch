@@ -49,6 +49,7 @@ def parse(argv):
     ap.add_argument("--n-heads", type=int, default=4)
     ap.add_argument("--n-layers", type=int, default=4)
     ap.add_argument("--pos", default="sinusoidal", choices=["sinusoidal", "learned"])
+    ap.add_argument("--scale-emb", action="store_true", help="tokens x sqrt(d_model) (Vaswani 3.4)")
     # training
     ap.add_argument("--block-size", type=int, default=128)
     ap.add_argument("--batch-size", type=int, default=16)
@@ -115,7 +116,8 @@ def main(argv=None) -> dict:
         print(f"resumed {a.run} at step {trainer.step}/{trainer.cfg.max_steps}")
     else:
         mcfg = GPTConfig(vocab_size=tok.vocab_size, d_model=a.d_model, n_heads=a.n_heads,
-                         n_layers=a.n_layers, max_len=a.block_size, pos=a.pos)
+                         n_layers=a.n_layers, max_len=a.block_size, pos=a.pos,
+                         scale_emb=a.scale_emb)
         tcfg = TrainConfig(max_steps=a.steps, batch_size=a.batch_size, block_size=a.block_size,
                            max_lr=a.lr, min_lr=a.lr / 10, warmup_steps=a.warmup,
                            weight_decay=a.weight_decay, eval_interval=a.eval_interval,
@@ -154,6 +156,10 @@ def main(argv=None) -> dict:
                   "val_perplexity_per_token": perplexity(val), "val_perplexity_per_char": 2 ** bpc(val, cpt),
                   "generalisation_gap": val - trn},
         "baselines_val": {k: {"nats": v, "bpc": bpc(v, cpt), "perplexity": perplexity(v)} for k, v in refs.items()},
+        # periodic evals (eval_iters batches each): for curves and for runs that overfit before the end
+        "evals": {"step": hist["eval_step"], "train_loss": hist["train_loss"], "val_loss": hist["val_loss"]},
+        "best_periodic_val": (lambda i: {"step": hist["eval_step"][i], "val_loss": hist["val_loss"][i],
+                                         "val_bpc": bpc(hist["val_loss"][i], cpt)})(int(np.argmin(hist["val_loss"]))),
         "sample_greedy": sample,
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")

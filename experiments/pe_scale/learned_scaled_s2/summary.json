@@ -1,0 +1,118 @@
+{
+  "run": "pe_scale/learned_scaled_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "learned",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 240768,
+  "steps": 3000,
+  "seconds_this_session": 166.6,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 78024.8179058721,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.6927615857124327,
+    "val_loss": 3.1843612813949584,
+    "val_bpc": 2.2220697261805857,
+    "val_perplexity_per_token": 24.151857237718577,
+    "val_perplexity_per_char": 4.665622965621215,
+    "generalisation_gap": 0.4915996956825257
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.23839418888092,
+      3.856337010860443,
+      3.5670217633247376,
+      3.337659513950348,
+      3.1854214549064634,
+      3.0300530910491945,
+      2.9745098829269407,
+      2.8721009135246276,
+      2.810019612312317,
+      2.748849904537201,
+      2.710472309589386,
+      2.7096549391746523,
+      2.729096698760986
+    ],
+    "val_loss": [
+      6.233898591995239,
+      3.939140200614929,
+      3.728650677204132,
+      3.546985399723053,
+      3.437766766548157,
+      3.355365037918091,
+      3.3373366594314575,
+      3.285277211666107,
+      3.256860136985779,
+      3.195395863056183,
+      3.228441369533539,
+      3.2344292759895326,
+      3.1940096735954286
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.1940096735954286,
+    "val_bpc": 2.2288024422012973
+  },
+  "sample_greedy": "ROMEO:\nO, my lord, I'll bear the king.\n\nKING RICHARD II:\nNow, I'll tell thee, and my lord,\nAnd I will not be afternooted.\n\nKING HENRY VI:\nWhy, I will not before I, I'll bear him.\n\nKING HENRY VI:\nWhy, I will not before I, I'll not be affair\nTo bear him.\n\nMENENIUS:\nI'll tell you, sir, sir, I'll be after\nTo bear him.\n\nCORIOLANUS:\nI'll promise him.\n\nCORIOLANUS:\nI'll promise him.\n\nCORIOLANUS:\nI'll promise him.\n\nCORIOLANUS:\nI'll promise him.\n\nCORIOLANUS:\nI'll promise him.\n\nCORIOLANUS:\nI'll promised to you.\n\nCORIOLANUS:\nI'll promised to be a prettty,\nAnd you are purpose to be accused,\nAnd particulars, and perceived,\nAnd partly to"
+}

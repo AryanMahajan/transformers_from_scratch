@@ -80,6 +80,7 @@ ids [B,T]
 | 18 | Optional CuPy GPU backend (`--device gpu`), NumPy default; numpy pinned 1.26.4 | Same maths via NEP-18 dispatch; only creation ops and `add.at` are device-aware; GPU grads verified == CPU grads (1e-8, float64). ~8× faster training on an RTX 3050. |
 | 19 | Sampling: temperature → top-k → top-p → softmax → inverse-CDF draw, explicit RNG; `temperature=0` = exact argmax | Reproducible (seeded), testable against softmax(z/τ) frequencies; truncation zeroes the junk tail that greedy avoids and τ = 1 samples. |
 | 20 | BPE with a character base + GPT-2-style ASCII pre-tokenisation; incremental pair counts; compare tokenizers in bits per char | Corpus is ASCII with no unseen val chars, so a char base is smaller and readable (byte base would remove `<unk>`). Incremental trainer verified identical to brute force. Per-token loss isn't comparable across tokenizers. |
+| 21 | Token embeddings × √D (`scale_emb`) with sinusoidal positions; Phase 8 centre | Unscaled, sinusoidal rows (norm √(D/2) = 5.66) were 35× the 0.02-init token rows and drowned token identity: 2.583 ± 0.077 vs 2.225 ± 0.018 bits/char (3 seeds), seed noise 4.5× lower. Vaswani §3.4. No effect on learned positions. |
 
 ## 5. Reproducibility
 

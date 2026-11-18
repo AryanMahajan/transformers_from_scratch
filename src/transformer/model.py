@@ -1,12 +1,16 @@
 """Decoder-only Transformer language model (GPT-style, pre-LN).
 
-    ids [B,T] -> h = TokenEmb(ids) + Pos[:T]      [B,T,D]
+    ids [B,T] -> h = s * TokenEmb(ids) + Pos[:T]  [B,T,D]   s = sqrt(D) if scale_emb else 1
               -> N x TransformerBlock              [B,T,D]
               -> LN_f                              [B,T,D]   pre-LN never normalises the stream
               -> logits = h E^T  (tied)            [B,T,V]   or h W_lm (untied)
 Backward walks the same chain in reverse. With tied weights E is used twice
 (lookup at the bottom, projection at the top), so E.grad is the SUM of both
 contributions -- the reason Parameter.grad accumulates with +=.
+scale_emb (Vaswani et al. 2017, sec. 3.4): token rows start at std 0.02 (norm ~0.16)
+but every sinusoidal row has norm sqrt(D/2) (5.66 at D=64): positions would drown
+the token identity. Multiplying the token embedding by sqrt(D) balances the two.
+Backward: d(s*e)/de = s, so the lookup gradient is s * dh.
 Derivations: docs/05_transformer.md §3
 """
 
@@ -34,6 +38,7 @@ class GPTConfig:
     d_ff: int | None = None        # default 4 * d_model
     pos: str = "sinusoidal"        # "sinusoidal" | "learned"   (Experiment D)
     tie_weights: bool = True
+    scale_emb: bool = False        # multiply token embeddings by sqrt(d_model) (Phase 8 fix)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -59,6 +64,7 @@ class GPT(Module):
         if not cfg.tie_weights:
             self.lm_head = Linear(D, V, rng, bias=False, dtype=dtype)
         self._h = None                                           # ln_f output, for the tied dE
+        self._emb_scale = float(np.sqrt(D))
 
     def astype(self, dtype) -> "GPT":
         super().astype(dtype)
@@ -72,6 +78,8 @@ class GPT(Module):
         if T > self.cfg.max_len:
             raise ValueError(f"sequence length {T} > max_len {self.cfg.max_len}")
         h = self.tok_emb(ids)                                    # [B,T,D]
+        if self.cfg.scale_emb:
+            h = h * self._emb_scale
         if self.cfg.pos == "learned":
             h = h + self.pos_emb(xp_of(h).arange(T))             # [T,D] broadcast over B
         else:
@@ -100,5 +108,7 @@ class GPT(Module):
         if self.cfg.pos == "learned":
             T, D = dh.shape[-2:]                                 # same row used by every batch item
             self.pos_emb.backward(dh.reshape(-1, T, D).sum(axis=0))
+        if self.cfg.scale_emb:
+            dh = dh * self._emb_scale                            # chain rule through h = s * e
         self.tok_emb.backward(dh)                                # bottom use of E: scatter-add (+=)
         return None                                              # ids are discrete: no input grad
