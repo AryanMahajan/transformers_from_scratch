@@ -291,6 +291,81 @@ text statistics better.
 
 ---
 
+## 4. BPE tokenizer: `src/tokenizer/bpe_tokenizer.py`
+
+### Why
+Char-level: V = 66, but 1 token = 1 char, so T = 128 sees only 128 chars, and
+the model spends capacity learning to spell. BPE merges frequent character
+sequences into single tokens: each token carries more text, so the same T
+sees more, at the cost of a bigger V (bigger embedding/output layer).
+
+### Training = greedy compression (Sennrich et al. 2016)
+```
+vocab = specials + every character in train
+words = pre-tokenise train  ->  {word: frequency}
+repeat until |vocab| = V:
+    (a, b) = most frequent adjacent pair  (counted over words × frequency)
+    new token "ab"; replace every (a, b) in every word      # merge with rank r
+```
+Each merge removes count(a, b) symbols from the corpus, the largest possible
+reduction at that step (greedy, not globally optimal).
+
+**Pre-tokenisation** (GPT-2-style regex: contractions | ` ?letters` |
+` ?digits` | ` ?punctuation` | whitespace) keeps merges *inside* words. The
+leading space belongs to the word, so `" the"` is a token, distinct from
+`"the"` mid-word. No token contains an inner space (tested).
+
+**Incremental pair counts.** Naively recounting all pairs after each merge
+costs O(corpus) per merge. Instead keep `pair_count` and `where[pair]` (which
+words contain it); a merge only touches words containing (a, b): subtract
+their old pairs, apply the merge, add their new pairs. Correctness is tested
+against a brute-force recount: **identical merge lists** for 141 merges on
+real text.
+
+**Ties** are broken by the smallest ids, so the same corpus always gives the
+same tokenizer. Training stops early when no pair occurs twice.
+
+### Encoding = replay merges by rank
+For each pre-token: start from characters, repeatedly merge the adjacent pair
+with the **lowest rank** (learned earliest), until no learned pair remains.
+That reproduces how training split the same word. Results are cached per word
+(words repeat a lot). Unseen characters become `<unk>`.
+
+**Decoding** = concatenate token strings: `decode(encode(s)) == s` for in-vocab
+text (tested on the full val set).
+
+### Character base vs byte base
+GPT-2 starts from the 256 **bytes** of UTF-8, so any text is encodable with
+no `<unk>`. Our corpus is ASCII and val has no unseen characters, so a
+character base (65 chars + `<unk>`) is smaller and makes tokens directly
+readable. Same algorithm either way.
+
+### On Tiny Shakespeare (trained on train, measured on val)
+| V | merges | chars / token (val) | train time |
+|---|---|---|---|
+| 66 (char) | 0 | 1.00 | — |
+| 128 | 62 | 1.47 | 0.3 s |
+| 256 | 190 | 1.78 | 0.3 s |
+| **512** | 446 | **2.07** | 0.7 s |
+| 1024 | 958 | 2.33 | 1.0 s |
+| 2048 | 1982 | 2.60 | 2.8 s |
+
+Diminishing returns: each doubling of V adds less compression, because later
+merges are rarer pairs.
+
+First merges at V = 512: `' t'`, `'he'`, `' a'`, `'ou'`, `' s'`, `' m'`, `'in'`,
+`' w'`, `'re'`, `'ha'`, **`' the'`** (11th), `'nd'`, … Late merges are rarer
+pieces, including speaker names: `'QUE'`, `'QUEEN'`, `'LAN'`.
+`"ROMEO: Wherefore art thou"` → `R | OM | EO | : | ␣ | Whe | re | fore | ␣ar | t | ␣thou`.
+
+### Tests (`tests/test_bpe_tokenizer.py`, 11)
+Pre-tokenisation lossless; merge left-to-right non-overlapping (`[1,1,1]` →
+`[9,1]`); classic example's first merges `es`, `est`; **incremental == brute
+force**; round-trip + compression; frequent word → one token; no merges across
+words; `<unk>` handling; save/load; vocab too small rejected; bad ids rejected.
+
+---
+
 ## Self-check questions
 1. List everything a checkpoint must contain for an exact resume, and what goes wrong if each is missing.
 2. Why does forgetting the RNG state cause drift, even with the same seed?
@@ -313,6 +388,12 @@ text statistics better.
 19. Prove that inverse-CDF sampling picks token i with probability $p_i$. Why is a −∞ logit never drawn?
 20. Why must the RNG be passed in explicitly? Which test relies on it?
 21. In the demo table, which setting would you pick for a demo, and why? What are the limits of the two metrics?
+22. Run three BPE merges by hand on "low lower newest widest" (with frequencies). Why is BPE called greedy compression?
+23. Why pre-tokenise before BPE? What would go wrong without it?
+24. Why does encoding apply merges in rank order rather than, e.g., longest-match?
+25. How do incremental pair counts avoid recounting the corpus, and how was their correctness verified?
+26. Character base vs byte base: what does each guarantee, and why did we pick characters?
+27. Why does compression (chars/token) grow more slowly as V doubles?
 
 ---
 
