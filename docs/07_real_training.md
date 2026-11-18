@@ -364,6 +364,79 @@ Pre-tokenisation lossless; merge left-to-right non-overlapping (`[1,1,1]` →
 force**; round-trip + compression; frequent word → one token; no merges across
 words; `<unk>` handling; save/load; vocab too small rejected; bad ids rejected.
 
+### Comparing tokenizers fairly: bits per character
+A BPE token carries ~2.07 chars, so its loss *per token* is naturally higher.
+Per-token losses (and per-token perplexities) of different tokenizers are
+**not comparable**. Convert to the shared unit, the character:
+
+$$\text{bpc} = \frac{\text{nats per token}}{\ln 2} \cdot \frac{\text{tokens}}{\text{characters}}$$
+
+(`bpc(nats, chars_per_token)` in `baselines.py`; chars/token measured on the
+whole val split.) Perplexity per char = $2^{\text{bpc}}$.
+
+Plumbing: `tokenizer_from_dict` dispatches on `type` so checkpoints hold either
+tokenizer; `train.py --tokenizer bpe --vocab-size 512` trains BPE on the train
+split only and saves it to `data/tokenizer/bpe512_tinyshakespeare.json`.
+
+### The run (`experiments/bpe512/`): identical settings to the char baseline
+D = 64, H = 4, N = 4, T = 128 **tokens**, batch 32, 3000 steps, same LR
+schedule, GPU.
+
+| | char (V = 66) | BPE (V = 512) |
+|---|---|---|
+| params | 204,032 | 232,576 (+28.5k embedding: 446 × 64) |
+| text per window (T = 128) | 128 chars | ~265 chars |
+| train-split passes (3000 × 4096 tokens) | ~11 | ~25 |
+| unigram baseline, bits/char | 4.83 | 3.81 |
+| **bigram baseline, bits/char** | 3.58 | **2.67** |
+| **model val, bits/char** | 2.81 | **2.54** (final 100-batch eval: 2.527) |
+| val nats per token | 1.948 | 3.621 (not comparable) |
+| generalisation gap, bits/char | 0.153 | 0.152 |
+
+Val curve in bits/char (periodic evals):
+
+| step | 500 | 1000 | 1250 | 2000 | 3000 |
+|---|---|---|---|---|---|
+| char | 3.88 | 3.51 | 3.33 | 2.95 | **2.81** |
+| BPE | 3.22 | 2.90 | **2.81** | 2.62 | 2.54 |
+
+**BPE reaches the char model's final quality at step ~1250** (~40% of the
+steps) and ends **0.28 bits/char (10%) better**. Val was still falling at
+3000 despite ~25 passes, and the gap per char is the same as the char model's.
+
+### Why BPE helps, and what is *not* controlled
+- **More text per window:** 128 tokens ≈ 265 chars of context.
+- **Spelling is solved by the tokenizer:** `" the"` is one token, so the model's
+  capacity goes to which word comes next, not which letter. Even a
+  count-based **BPE bigram (2.67) almost matches the char Transformer (2.81)**:
+  one previous token is ~2 chars of context.
+- **But the comparison changes three things at once:** context in characters
+  (2×), parameters (+14%), and passes over the data (2.3×). Separating them
+  needs e.g. a char model with T = 256 (Phase 8, Experiment D territory).
+- Wall-clock: this run took 6.3 min (32.6k tok/s) vs 28.6 min for the char run
+  a day earlier. Per-step work is nearly the same, so the difference is laptop
+  load, not BPE. Don't compare throughput across sessions.
+
+### Samples (`experiments/bpe512/samples.md`, 145 tokens ≈ 300 chars, 5 seeds)
+| setting | char diversity / real-word | BPE diversity / real-word |
+|---|---|---|
+| greedy | 0.20 / 0.88 | 0.42 / 0.92 |
+| τ = 0.5 | 0.72 / 0.79 | 0.70 / 0.89 |
+| τ = 0.8 | 0.87 / 0.63 | 0.86 / 0.73 |
+| τ = 1.0 | 0.92 / 0.44 | 0.84 / 0.72 |
+| τ = 0.8, k = 10 | 0.77 / 0.74 | 0.71 / 0.86 |
+
+Real-word rate is up across the board (words are tokens now). τ = 0.8, k = 10:
+```
+GLOUCESTER:
+No, the child, that, I'll say?
+
+First Citizen:
+I will not not not, my lords, I
+```
+Greedy still loops ("I'll beger, and I'll belper"), just on words instead of
+letters: a decoding problem, not a tokenizer one.
+
 ---
 
 ## Self-check questions
@@ -394,6 +467,9 @@ words; `<unk>` handling; save/load; vocab too small rejected; bad ids rejected.
 25. How do incremental pair counts avoid recounting the corpus, and how was their correctness verified?
 26. Character base vs byte base: what does each guarantee, and why did we pick characters?
 27. Why does compression (chars/token) grow more slowly as V doubles?
+28. Why can't you compare val loss per token between the char and BPE models? Derive the bits-per-character conversion.
+29. The BPE bigram nearly matches the char Transformer. What does that tell you about where the char model's capacity goes?
+30. Name three things that differ between the char and BPE runs besides the tokenizer. Design a run that isolates the effect of context length.
 
 ---
 

@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.generation.sampling import generate  # noqa: E402
+from src.tokenizer.char_tokenizer import CharTokenizer  # noqa: E402
 from src.training.checkpoint import load_model  # noqa: E402
 
 GRID = [  # (label, temperature, top_k, top_p)
@@ -69,7 +70,8 @@ def main(argv=None):
         print(tok.decode(ids))
         return
 
-    train_text = tok.decode(np.load(ROOT / "data" / "processed" / "train.npy"))
+    char_tok = CharTokenizer.load(ROOT / "data" / "tokenizer" / "char_tinyshakespeare.json")
+    train_text = char_tok.decode(np.load(ROOT / "data" / "processed" / "train.npy"))  # works for BPE runs too
     vocab = set(WORD.findall(train_text.lower()))
     rows = []
     for label, t, k, p in GRID:

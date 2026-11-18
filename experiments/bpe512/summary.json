@@ -1,0 +1,65 @@
+{
+  "run": "bpe512",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 376.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 32557.318602713345,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.403454420566559,
+    "val_loss": 3.621444401741028,
+    "val_bpc": 2.527069405463235,
+    "val_perplexity_per_token": 37.3915372373973,
+    "val_perplexity_per_char": 5.763996284174404,
+    "generalisation_gap": 0.217989981174469
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "sample_greedy": "ROMEO:\nWe, my lord, sir,\nWho, my lord, and, and I'll be away.\n\nCORIOLANUS:\nI am a much, and I'll bear,\nAnd I'll be away, and he is a counten,\nAnd I'll beens, and I'll bear\nAnd I'll bears, and the counten,\nAnd I'll bear the childer.\n\nCORIOLANUS:\nI am, sir, sir, sir,\nI'll be not, and bear, and I'll belper\nTo been, and the childer, and I'll beger\ntovererefore, and I'll bear appear.\n\nCORIOLANUS:\nI'll beger, sir,\nI'll beger, and I'll belper,\nAnd I'll beger, and I'll belper\nTo been, and the chips of the childer.\n\nKING RICHARD II:\nI'll be not, and bear, and I'll belio.\n\nKING RICHARD II:\nI'll be not, I'll belper, and I'll belio,\nI'll beger, and I"
+}

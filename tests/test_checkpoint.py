@@ -109,3 +109,17 @@ def test_rejects_unknown_format(tmp_path):
         np.savez(f, meta=np.array('{"format_version": 99}'))
     with pytest.raises(ValueError):
         read_checkpoint(ck)
+
+
+def test_bpe_tokenizer_survives_checkpoint(tmp_path):
+    from src.tokenizer.bpe_tokenizer import BPETokenizer
+    text = "to be or not to be, that is the question " * 20
+    bpe = BPETokenizer.train(text, vocab_size=40)
+    ids = bpe.encode(text).astype(np.int64)
+    mcfg = GPTConfig(vocab_size=bpe.vocab_size, d_model=16, n_heads=2, n_layers=1, max_len=8)
+    tcfg = TrainConfig(max_steps=2, batch_size=2, block_size=8, warmup_steps=1, eval_interval=100, eval_iters=1)
+    t = Trainer(GPT(mcfg, np.random.default_rng(0)), ids, None, tcfg, log=lambda s: None, tokenizer=bpe)
+    t.run(ckpt_path=tmp_path / "c.npz")
+    _, tok, _ = load_model(tmp_path / "c.npz")
+    assert isinstance(tok, BPETokenizer) and tok.merges == bpe.merges
+    assert tok.decode(tok.encode(text)) == text

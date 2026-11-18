@@ -133,13 +133,18 @@ Study notes: [`06_training.md`](06_training.md)
 
 ---
 
-## Phase 7: Real training
+## Phase 7: Real training ✅
 
-- Real corpus (e.g. TinyStories subset), train/val split
-- Checkpointing (config, tokenizer, params, optimizer state, step): train → save → exit → reload → resume
-- Autoregressive generation (greedy, temperature, top-k)
-- Validation loss and perplexity, tokens/sec, parameter count
-- BPE tokenizer
+- Real corpus (Tiny Shakespeare, contiguous 90/10 split) ✅
+- Checkpointing (config, tokenizer, params, optimizer state, step, RNG): train → save → exit → reload → resume, bit-identical ✅
+- Autoregressive generation (greedy, temperature, top-k, top-p) ✅
+- Validation loss, bits/char, perplexity, tokens/sec, parameter count, n-gram baselines ✅
+- BPE tokenizer + char-vs-BPE comparison in bits/char ✅
+- Extra: optional CuPy GPU backend (`--device gpu`)
+
+**Results:** char model 2.81 bits/char, BPE-512 model 2.53 bits/char (bigram baselines 3.58 / 2.67).
+
+Study notes: [`07_real_training.md`](07_real_training.md)
 
 ---
 

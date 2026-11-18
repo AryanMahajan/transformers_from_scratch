@@ -26,8 +26,8 @@ attempt at a state-of-the-art LLM.
 | 4 | Attention (causal mask, scaled dot-product, multi-head, sinusoidal positions) | ✅ done |
 | 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ✅ done |
 | 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ✅ done |
-| 7 | Real corpus, checkpointing, generation, evaluation | ⏳ next |
-| 8 | Experiments A–E, attention visualisation, report | ⬜ |
+| 7 | Real corpus, checkpointing, generation (temperature/top-k/top-p), BPE, evaluation | ✅ done |
+| 8 | Experiments A–E, attention visualisation, report | ⏳ next |
 
 [`docs/ROADMAP.md`](docs/ROADMAP.md) has the full plan and the exit
 criteria for each phase.
@@ -46,6 +46,8 @@ python scripts/download_papers.py   # fetch reference PDFs into papers/
 python scripts/prepare_data.py      # download + split + tokenize Tiny Shakespeare
 python scripts/overfit_tiny.py      # midterm gate: memorise 257 chars, plot loss curve
 python scripts/train.py --run baseline [--device gpu] [--resume]   # real run (GPU: pip install -r requirements-gpu.txt)
+python scripts/train.py --run bpe512 --tokenizer bpe --vocab-size 512 [--device gpu]
+python scripts/sample.py --run baseline --temperature 0.8 --top-k 10   # generate text (no flags: compare settings)
 pytest                              # run the test suite
 ```
 

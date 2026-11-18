@@ -3,12 +3,15 @@
     python scripts/train.py --run baseline                 # fresh run
     python scripts/train.py --run baseline --resume        # continue from checkpoints/baseline/latest.npz
     python scripts/train.py --run baseline --device gpu    # optional CuPy backend (pip install -r requirements-gpu.txt)
+    python scripts/train.py --run bpe512 --tokenizer bpe --vocab-size 512   # BPE trained on the train split
 
 Outputs:
     checkpoints/<run>/latest.npz        full training state (gitignored)
     experiments/<run>/loss_curve.png    train/val loss vs step, with baselines
     experiments/<run>/summary.json      configs, final metrics (nats, bpc, perplexity), baselines, sample
-Notes: docs/07_real_training.md §2
+Losses are per TOKEN (nats); bits per CHARACTER divide by chars/token so
+char and BPE runs compare fairly.
+Notes: docs/07_real_training.md §2, §4
 """
 
 import argparse
@@ -23,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.generation.greedy import greedy_generate  # noqa: E402
+from src.tokenizer.bpe_tokenizer import BPETokenizer  # noqa: E402
 from src.tokenizer.char_tokenizer import CharTokenizer  # noqa: E402
 from src.training.baselines import bigram_loss, bpc, perplexity, unigram_loss  # noqa: E402
 from src.training.checkpoint import load_trainer  # noqa: E402
@@ -38,6 +42,8 @@ def parse(argv):
     ap.add_argument("--run", default="baseline")
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--device", default="cpu", choices=["cpu", "gpu"])
+    ap.add_argument("--tokenizer", default="char", choices=["char", "bpe"])
+    ap.add_argument("--vocab-size", type=int, default=512, help="BPE only")
     # model
     ap.add_argument("--d-model", type=int, default=64)
     ap.add_argument("--n-heads", type=int, default=4)
@@ -70,7 +76,7 @@ def plot(hist, refs: dict, path: Path, title: str) -> None:
     for (name, v), ls in zip(refs.items(), ["--", ":", "-."]):
         ax.axhline(v, ls=ls, c="gray", lw=1, label=f"{name} = {v:.2f}")
     ax.set_xlabel("step")
-    ax.set_ylabel("cross-entropy (nats)")
+    ax.set_ylabel("cross-entropy (nats per token)")
     ax.set_ylim(top=max(refs.values()) + 0.3)
     ax.set_title(title)
     ax.grid(alpha=0.3)
@@ -80,11 +86,26 @@ def plot(hist, refs: dict, path: Path, title: str) -> None:
     plt.close(fig)
 
 
-def main(argv=None) -> dict:
-    a = parse(argv)
-    tok = CharTokenizer.load(TOKENIZER)
+def load_data(kind: str, vocab_size: int):
+    """(tokenizer, train ids, val ids, chars per val token). BPE is trained on the
+    train split only (deterministic, <1 s) and saved next to the char vocab."""
+    char_tok = CharTokenizer.load(TOKENIZER)
     train_ids = np.load(DATA / "train.npy").astype(np.int64)
     val_ids = np.load(DATA / "val.npy").astype(np.int64)
+    if kind == "char":
+        return char_tok, train_ids, val_ids, 1.0
+    train_text, val_text = char_tok.decode(train_ids), char_tok.decode(val_ids)
+    tok = BPETokenizer.train(train_text, vocab_size)
+    tok.save(TOKENIZER.parent / f"bpe{vocab_size}_tinyshakespeare.json")
+    tr, va = tok.encode(train_text).astype(np.int64), tok.encode(val_text).astype(np.int64)
+    return tok, tr, va, len(val_text) / len(va)
+
+
+def main(argv=None) -> dict:
+    a = parse(argv)
+    tok, train_ids, val_ids, cpt = load_data(a.tokenizer, a.vocab_size)
+    print(f"tokenizer {a.tokenizer}: V={tok.vocab_size}, {len(train_ids):,} train / {len(val_ids):,} val tokens,"
+          f" {cpt:.3f} chars/token")
     ckpt = ROOT / "checkpoints" / a.run / "latest.npz"
     out = ROOT / "experiments" / a.run
     out.mkdir(parents=True, exist_ok=True)
@@ -121,21 +142,23 @@ def main(argv=None) -> dict:
     sample = tok.decode(greedy_generate(model, prompt, 300))
 
     plot(hist, refs, out / "loss_curve.png",
-         f"{a.run}: {model.num_parameters():,} params, char-level Tiny Shakespeare")
+         f"{a.run}: {model.num_parameters():,} params, {a.tokenizer} (V={V}) Tiny Shakespeare")
     summary = {
         "run": a.run, "device": trainer.device, "model": model.cfg.to_dict(), "train": cfg.to_dict(),
         "n_params": model.num_parameters(), "steps": trainer.step,
         "seconds_this_session": round(seconds, 1),
         "tokens_seen": trainer.step * cfg.batch_size * cfg.block_size,
         "median_tokens_per_sec": float(np.median(hist["tokens_per_sec"])) if hist["tokens_per_sec"] else None,
-        "final": {"train_loss": trn, "val_loss": val, "val_bpc": bpc(val), "val_perplexity": perplexity(val),
+        "tokenizer": {"type": a.tokenizer, "vocab_size": tok.vocab_size, "val_chars_per_token": cpt},
+        "final": {"train_loss": trn, "val_loss": val, "val_bpc": bpc(val, cpt),
+                  "val_perplexity_per_token": perplexity(val), "val_perplexity_per_char": 2 ** bpc(val, cpt),
                   "generalisation_gap": val - trn},
-        "baselines_val": {k: {"nats": v, "bpc": bpc(v), "perplexity": perplexity(v)} for k, v in refs.items()},
+        "baselines_val": {k: {"nats": v, "bpc": bpc(v, cpt), "perplexity": perplexity(v)} for k, v in refs.items()},
         "sample_greedy": sample,
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")
-    print(f"\nval {val:.4f} nats = {bpc(val):.3f} bpc = perplexity {perplexity(val):.2f}"
-          f" | train {trn:.4f} | bigram {refs['bigram']:.4f} | {seconds / 60:.1f} min")
+    print(f"\nval {val:.4f} nats/token = {bpc(val, cpt):.3f} bits/char | train {trn:.4f}"
+          f" | bigram {bpc(refs['bigram'], cpt):.3f} bits/char | {seconds / 60:.1f} min")
     print("\n--- greedy sample ---\n" + sample)
     return summary
 

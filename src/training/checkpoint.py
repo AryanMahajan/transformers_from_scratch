@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from src.core.backend import to_numpy
-from src.tokenizer.char_tokenizer import CharTokenizer
+from src.tokenizer import tokenizer_from_dict
 from src.training.trainer import Trainer, TrainConfig, _empty_history
 from src.transformer.model import GPT, GPTConfig
 
@@ -65,12 +65,12 @@ def read_checkpoint(path) -> tuple[dict, dict]:
     return meta, arrays
 
 
-def load_model(path, device: str = "cpu") -> tuple[GPT, CharTokenizer | None, dict]:
+def load_model(path, device: str = "cpu") -> tuple[GPT, object, dict]:
     """For inference: (model on `device`, tokenizer, meta)."""
     meta, arrays = read_checkpoint(path)
     model = GPT(GPTConfig(**meta["model_config"]), np.random.default_rng(0), dtype=np.dtype(meta["dtype"]))
     model.load_state_dict({k[len("param/"):]: v for k, v in arrays.items() if k.startswith("param/")})
-    tok = CharTokenizer.from_dict(meta["tokenizer"]) if meta["tokenizer"] else None
+    tok = tokenizer_from_dict(meta["tokenizer"]) if meta["tokenizer"] else None
     return model.to(device), tok, meta
 
 

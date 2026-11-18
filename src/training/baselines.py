@@ -7,7 +7,7 @@ Add-a (Laplace/Lidstone) smoothing keeps unseen events from getting p = 0
 (-> infinite loss). A bigram is "one character of context": the level a
 model reaches with no attention at all. A Transformer must beat it.
 
-Units:  bits per char = nats / ln 2;   perplexity = e^nats
+Units:  bits per char = nats / ln 2  (/ chars-per-token for BPE);   perplexity = e^nats
         (perplexity = the effective number of equally likely next chars)
 Notes: docs/07_real_training.md §2
 """
@@ -17,8 +17,10 @@ import math
 import numpy as np
 
 
-def bpc(loss_nats: float) -> float:
-    return loss_nats / math.log(2)
+def bpc(loss_nats: float, chars_per_token: float = 1.0) -> float:
+    """Bits per CHARACTER. For a tokenizer whose tokens average c chars,
+    loss per token / c = loss per char, so different tokenizers compare fairly."""
+    return loss_nats / math.log(2) / chars_per_token
 
 
 def perplexity(loss_nats: float) -> float:

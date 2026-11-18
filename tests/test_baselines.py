@@ -35,3 +35,9 @@ def test_smoothing_keeps_unseen_finite():
     assert math.isfinite(bigram_loss(tr, va, 3, alpha=0.1))
     with np.errstate(divide="ignore"):
         assert bigram_loss(tr, va, 3, alpha=0.0) == math.inf
+
+
+def test_bpc_per_character_for_multi_char_tokens():
+    # 2 chars per token: the same per-token loss is half as many bits per char
+    assert bpc(math.log(2) * 3, chars_per_token=2.0) == pytest.approx(1.5)
+    assert bpc(1.0) == bpc(1.0, chars_per_token=1.0)

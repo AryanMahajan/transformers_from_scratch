@@ -118,3 +118,14 @@ def test_decode_rejects_bad_ids():
     tok = BPETokenizer.train(TOY, vocab_size=40)
     with pytest.raises(IndexError):
         tok.decode([tok.vocab_size])
+
+
+def test_tokenizer_from_dict_dispatches_on_type():
+    from src.tokenizer import tokenizer_from_dict
+    from src.tokenizer.char_tokenizer import CharTokenizer
+    bpe = BPETokenizer.train(TOY, vocab_size=40)
+    char = CharTokenizer.train(TOY)
+    assert isinstance(tokenizer_from_dict(bpe.to_dict()), BPETokenizer)
+    assert isinstance(tokenizer_from_dict(char.to_dict()), CharTokenizer)
+    with pytest.raises(ValueError):
+        tokenizer_from_dict({"type": "word"})

@@ -1,0 +1,90 @@
+[
+  {
+    "setting": "greedy",
+    "temperature": 0.0,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.4193548387096774,
+    "real_word": 0.9193548387096774,
+    "diversity_std": 5.551115123125783e-17,
+    "real_word_std": 0.0,
+    "text": "ROMEO:\nWe, my lord, sir,\nWho, my lord, and, and I'll be away.\n\nCORIOLANUS:\nI am a much, and I'll bear,\nAnd I'll be away, and he is a counten,\nAnd I'll beens, and I'll bear\nAnd I'll bears, and the counten,\nAnd I'll bear the childer.\n\nCORIOLANUS:\nI am, sir, sir, sir,\nI'll be not, and bear, and I'll belper\nTo been,"
+  },
+  {
+    "setting": "tau=0.5",
+    "temperature": 0.5,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.7037943021563129,
+    "real_word": 0.8851042201729143,
+    "diversity_std": 0.019905959683412865,
+    "real_word_std": 0.024092194816643053,
+    "text": "ROMEO:\nIs, sir, my lord, sir,\nTo tell you bears,\nI'll not give enumgering.\n\nSICINIUS:\nO, my lord, sir, become,\nThat, I have being,\nStoved not, sir, a mornonation,\nOf God bewicks, and that will to your father?\n\nQUEEN MARGARET:\nAnd news, sir, do I, thou, devant, and queen,\nI am misted to his night.\n\nGLOUCESTER:\nI am a m"
+  },
+  {
+    "setting": "tau=0.8",
+    "temperature": 0.8,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.8559586025557836,
+    "real_word": 0.7302138312068758,
+    "diversity_std": 0.047462501147890086,
+    "real_word_std": 0.03379207902564063,
+    "text": "ROMEO:\nIs, here know not instunent\nMy take. Thiswe, as with his curse Emried,\nTo be a dishured of the powerousious\nFor our wondazile that highs, and to hisship,\nYou by Berhard when they have lived him.\n\nGLOUCESTER:\nHe should, sir infees were comeslment on the patry\nTo steet, but my heart, if nittink you.\n'Twonpen it flot'd not one master'd\nT"
+  },
+  {
+    "setting": "tau=1.0",
+    "temperature": 1.0,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.8377091053744531,
+    "real_word": 0.7231717019450201,
+    "diversity_std": 0.04034164446090515,
+    "real_word_std": 0.048844542923921035,
+    "text": "ROMEO:\nIf, sirs be forch us with est.\n\nFirst Lord:\nCome?\n\nISABELLA:\nCome, and my father antwans.\nHow'stell with the jok.\nHer! that the a thus it? come flasurereigns,\nSo Parch a pasterour and made with hope\nAs offence, when love will be sallers.\n\nGLOUCESTER:\nTaith! 't our a man, and hence be awter.\n\nKING RICHARD III:\nWhat will sairow my grave?"
+  },
+  {
+    "setting": "tau=1.5",
+    "temperature": 1.5,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.9272808251185676,
+    "real_word": 0.5574355458975517,
+    "diversity_std": 0.034473615927901304,
+    "real_word_std": 0.05910472241391783,
+    "text": "ROMEO:\nJIA we saidus thou Part\nAse wouldre should we put.\nMeachow these such comesth dualimhe delakhe carats.th might! was now! O\nbling brin: we droned by cies I tearishsman:\nThe execut 'tar Chale as which sight had off\nAs foate soulves she weenry well a thoughman\nThat anUke, sword Wround, not uish'd ponother,\nNowly Vordy in Sherptar's fares: and"
+  },
+  {
+    "setting": "tau=1.0, k=5",
+    "temperature": 1.0,
+    "top_k": 5,
+    "top_p": null,
+    "diversity": 0.679295957038483,
+    "real_word": 0.8562910086162056,
+    "diversity_std": 0.05927223913001244,
+    "real_word_std": 0.026509204056740086,
+    "text": "ROMEO:\nNo! I am not a much of appower, and you have\nccomet the crowful crowns, for the ways of\ntopoping, intors, for a movered\nAnd men the fars and scolding in the farths,\nAnd I'll could before, and not not, and hence\nTo make my breaked, and look, and I have feed,\nI'll fitted to affectors to the power,\nThe perpering, and"
+  },
+  {
+    "setting": "tau=0.8, k=10",
+    "temperature": 0.8,
+    "top_k": 10,
+    "top_p": null,
+    "diversity": 0.7127681530108493,
+    "real_word": 0.8616646559719445,
+    "diversity_std": 0.022702617599637175,
+    "real_word_std": 0.04559476578311975,
+    "text": "ROMEO:\nIs, sir:\nWho's my most racesser, and Frince.\nWhat may not bears, for I have find thee,\nThan the both, my soul and soul, I have doth\nApe, for the clesser, and he is not.\n\nFirst Burderer:\nWhy, I am thou arford's fless to your country!\n\nGLOUCESTER:\nNo, the child, that, I'll say?\n\nFirst Citizen:\nI will not not not, my lords, I"
+  },
+  {
+    "setting": "tau=1.0, p=0.9",
+    "temperature": 1.0,
+    "top_k": null,
+    "top_p": 0.9,
+    "diversity": 0.858881758798308,
+    "real_word": 0.7447795267282477,
+    "diversity_std": 0.053044729615794345,
+    "real_word_std": 0.035611582735650134,
+    "text": "ROMEO:\nIs, she were for thy kind with robch.\n\nLORD:\nWho nurse me my lord: wronger, be swell the guke,\nWhen your same semand, and watrie, and be'd;\nNeave tear up other to being friends.\n\nSecond Servoteredman:\nThou must a hope no man; now now, that he had\nBut thou, an idain nosct: and hence bet a more!\n\nWARWICK:\nWels my lords, g"
+  }
+]
