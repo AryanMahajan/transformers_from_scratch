@@ -1,0 +1,118 @@
+{
+  "run": "depth/n6",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 6,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 332416,
+  "steps": 3000,
+  "seconds_this_session": 252.1,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 54463.75418469077,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.6095979237556457,
+    "val_loss": 3.1526548576354982,
+    "val_bpc": 2.1999447604070776,
+    "val_perplexity_per_token": 23.39810082243527,
+    "val_perplexity_per_char": 4.594617492538625,
+    "generalisation_gap": 0.5430569338798525
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.256882095336914,
+      4.128597903251648,
+      3.5765554428100588,
+      3.3343316674232484,
+      3.1401777982711794,
+      3.0143859148025514,
+      2.935383343696594,
+      2.8268154740333555,
+      2.747439444065094,
+      2.7038620114326477,
+      2.645942139625549,
+      2.619378626346588,
+      2.6323371052742006
+    ],
+    "val_loss": [
+      6.256679797172547,
+      4.225078701972961,
+      3.7594066500663756,
+      3.5649847388267517,
+      3.4527432441711428,
+      3.3242705345153807,
+      3.290977489948273,
+      3.226654660701752,
+      3.173990559577942,
+      3.1854718923568726,
+      3.1336374163627623,
+      3.1521074414253234,
+      3.1820770382881163
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2500,
+    "val_loss": 3.1336374163627623,
+    "val_bpc": 2.1866742559676275
+  },
+  "sample_greedy": "ROMEO:\nIt is a mind of the children, and the crown,\nAnd two claim him to the crown,\nAnd take the crown and the crown, and the crown.\n\nROMEO:\nO, I am a monthful, and thou art,\nAnd take thy wife and thy tongue doth live.\n\nROMEO:\nIt is the children, and thou art away.\n\nROMEO:\nIt is a woman'st, and two of me.\n\nROMEO:\nIt is a most children, and thou art away.\n\nROMEO:\nIt is a woman'st, and two of me.\n\nROMEO:\nIt is a most children, and thou art away.\n\nROMEO:\nIt is a woman'st, and two of me.\n\nROMEO:\nIt is a most children, and thou art away.\n\nROMEO:\nIt is a woman'st, and two of me.\n"
+}

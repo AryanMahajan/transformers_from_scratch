@@ -1,0 +1,118 @@
+{
+  "run": "context/t256",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 256,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 16,
+    "block_size": 256,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 188.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 68558.26128791785,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.778690710067749,
+    "val_loss": 3.2222929859161376,
+    "val_bpc": 2.2485387367075624,
+    "val_perplexity_per_token": 25.08557515496987,
+    "val_perplexity_per_char": 4.752012847849246,
+    "generalisation_gap": 0.4436022758483884
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.252641439437866,
+      4.226464629173279,
+      3.6886793255805967,
+      3.4694040417671204,
+      3.2676130175590514,
+      3.15196316242218,
+      3.002627456188202,
+      2.97722909450531,
+      2.892613935470581,
+      2.8653223395347593,
+      2.8159170031547545,
+      2.777317225933075,
+      2.7931838631629944
+    ],
+    "val_loss": [
+      6.252578949928283,
+      4.3107058763504025,
+      3.8496036887168885,
+      3.595095682144165,
+      3.533781576156616,
+      3.457058835029602,
+      3.3751259326934813,
+      3.286043095588684,
+      3.3000958800315856,
+      3.259815037250519,
+      3.2961941242218016,
+      3.2011138796806335,
+      3.2569577932357787
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.2011138796806335,
+    "val_bpc": 2.2337598072348177
+  },
+  "sample_greedy": "ROMEO:\nI'll not be a words,\nAnd I am a words to the queen,\nAnd I am advers of the queen,\nAnd I am after the queen,\nAnd I am a flatter'd, and I am a king,\nAnd longer performed, and I'll be,\nAnd leave to the queen, and I'll believe\nTo bear the queen's clounsel, and I\nAnd take the queen, and I am advers,\nAnd tell meet the queen, and I'll believe\nTo bear the queen, and I am away.\n\nSecond Messenger:\nIt is the queen, and I'll be away.\n\nFirst Murderer:\nIt is the queen, and I'll be advise\nTo the Duke of France, and I am away.\n\nFirst Murderer:\nSir Warwick, and I'll be advise the king,\nAnd I am a woman's King Henry's crow"
+}

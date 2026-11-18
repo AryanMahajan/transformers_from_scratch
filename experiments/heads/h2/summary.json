@@ -1,0 +1,118 @@
+{
+  "run": "heads/h2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 2,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 144.6,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 88990.17908050196,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.698405191898346,
+    "val_loss": 3.1459363675117493,
+    "val_bpc": 2.195256550687643,
+    "val_perplexity_per_token": 23.24142780553017,
+    "val_perplexity_per_char": 4.579710968017105,
+    "generalisation_gap": 0.4475311756134035
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.257375502586365,
+      4.06713502407074,
+      3.5395466446876527,
+      3.279673457145691,
+      3.107674980163574,
+      3.0214082837104796,
+      2.9608121037483217,
+      2.866810405254364,
+      2.8104304909706115,
+      2.771612524986267,
+      2.727344787120819,
+      2.703980100154877,
+      2.729065811634064
+    ],
+    "val_loss": [
+      6.257258796691895,
+      4.160020899772644,
+      3.7441906094551087,
+      3.537999927997589,
+      3.4411753177642823,
+      3.3156473636627197,
+      3.309973192214966,
+      3.24736909866333,
+      3.2040505528450014,
+      3.2011905312538147,
+      3.1422640681266785,
+      3.16379896402359,
+      3.1840606570243835
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2500,
+    "val_loss": 3.1422640681266785,
+    "val_bpc": 2.1926939943166954
+  },
+  "sample_greedy": "ROMEO:\nTherefore, my lord,\nAnd, in the crown, and I'll bear the crown,\nAnd I have been in the crown, and I'll bear\nTo bear the crown'd in the crown, and I\nHave I am approach'd, and I am a\nTo bear the crown, and that I have been\nTo bear the crown'd in the crown,\nAnd I am slain, and nothing, and I am addmit\nTo bear the crown, and that I have been\nThan I have been in the crown'd, and I'll\nTo bear the people, and that I have been\nThan you, and, and, and that you are not\nAt the people, and that you have been\nTo bear the people, and that you have been\nTo bear the people, and that you have been\nThan you, and, and, and, and, and, and\nAnd, indeed, and that you have been a country\nTo bear the people, and that you have been\nThan you, and"
+}
