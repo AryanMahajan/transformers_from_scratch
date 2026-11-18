@@ -198,6 +198,99 @@ processed **in parallel** per step (teacher forcing), and each costs only
 
 ---
 
+## 3. Sampling: temperature, top-k, top-p: `src/generation/sampling.py`, `scripts/sample.py`
+
+### Where it sits
+Same model, same loop as greedy (crop to `max_len`, use the last position's
+logits). Only the **picker** changes: instead of `argmax`, draw from a
+reshaped distribution.
+
+### The maths
+For last-position logits $z \in \mathbb{R}^V$:
+
+**Temperature:** $p_i = \dfrac{e^{z_i/\tau}}{\sum_j e^{z_j/\tau}}$. Two tokens with
+gap $\Delta = z_a - z_b$ get probability ratio $e^{\Delta/\tau}$.
+- τ → 0: ratios → ∞, all mass on the argmax = **greedy** (implemented exactly as `temperature=0`).
+- τ = 1: the model's own distribution (what cross-entropy trained).
+- τ → ∞: ratios → 1, **uniform**.
+- The **ranking never changes**; only the sharpness does (entropy rises with τ).
+
+**Top-k:** keep the k largest logits, set the rest to −∞; after softmax the
+kept tokens are renormalised ($p_i/\sum_{kept} p_j$) and the rest are exactly
+0. Why: 60 tail characters at 0.3% each = 18% chance of junk *every step*.
+
+**Top-p (nucleus):** sort by probability, keep the **smallest** set with
+mass ≥ p. Rule used: drop token i if the mass strictly above it is already
+≥ p (so the top token always survives). Unlike top-k the set **adapts**: one
+token after "Q", dozens after a space.
+
+**Drawing (inverse CDF):** $u \sim U[0, 1)$, pick the first i with
+$\text{cdf}_i > u$. Token i owns an interval of width $p_i$, so it's picked with
+probability exactly $p_i$; a masked token owns width 0 and is never picked.
+
+Order: temperature → top-k → top-p → softmax → draw.
+
+### Code notes
+- Logits may be on the GPU; sampling one `[V]` vector is done on the CPU in float64 (`to_numpy`).
+- `np.partition(z, V-k)[V-k]` finds the k-th largest in O(V), no full sort.
+- `mass_before = cumsum(p_sorted) - p_sorted` gives the top-p mask in one line.
+- `u = rng.random() * cdf[-1]` guards against `cdf[-1] = 0.9999999999999998`.
+- The `rng` is passed in explicitly, so the same seed gives the same text.
+
+### Tests (`tests/test_sampling.py`, 15)
+- Temperature divides logits; low τ means lower entropy, high τ higher, same argmax.
+- Top-k keeps exactly the k largest and renormalises; k ≥ V is a no-op.
+- Top-p keeps the *minimal* set reaching p (checked for several p), on unsorted input too; the top token always kept.
+- **40,000 draws match softmax(z/τ)** within 0.01 (τ = 1, 2); masked tokens never drawn.
+- `temperature=0` and `top_k=1` both reproduce `greedy_generate` exactly.
+- Same seed means the same output; invalid arguments raise.
+
+### Demo on the baseline checkpoint (`experiments/baseline/samples.md`)
+300 chars after "ROMEO:", mean ± std over 5 seeds.
+**Diversity** = distinct words / words (low = loops); **real-word** = share
+of generated words that occur in the training text (spelling).
+
+| setting | diversity | real-word |
+|---|---|---|
+| greedy | 0.20 ± 0.00 | **0.88** |
+| τ = 0.5 | 0.72 ± 0.04 | 0.79 ± 0.05 |
+| τ = 0.8 | 0.87 ± 0.03 | 0.63 ± 0.03 |
+| τ = 1.0 | 0.92 ± 0.03 | 0.44 ± 0.04 |
+| τ = 1.5 | **0.97** ± 0.03 | 0.28 ± 0.07 |
+| τ = 1.0, k = 5 | 0.76 ± 0.05 | 0.69 ± 0.05 |
+| τ = 0.8, k = 10 | 0.77 ± 0.03 | 0.74 ± 0.03 |
+| τ = 1.0, p = 0.9 | 0.86 ± 0.02 | 0.59 ± 0.04 |
+
+Reading it:
+- **Temperature is a single dial between two failure modes**: greedy loops
+  ("the the shall the the some") vs τ = 1.5 gibberish ("tuuYy; ifst livarm",
+  and it even sampled the `<unk>` token, because a flat distribution gives the
+  tail real mass).
+- **Truncation cuts the junk tail.** At τ = 1, top-k = 5 raises real-word
+  0.44 → 0.69; at τ = 0.8, k = 10 raises it 0.63 → 0.74 (diversity
+  0.87 → 0.77). Honest reading: on this small model the truncated settings
+  land near the *same* diversity/real-word frontier as lowering τ
+  (τ = 0.5: 0.72 / 0.79 vs τ = 0.8, k = 10: 0.77 / 0.74). The benefit is that
+  truncation guarantees rare junk tokens (`<unk>`, stray capitals) get
+  probability 0, while lower τ only shrinks them. Samples show proper speaker turns:
+  ```
+  COMIUCE:
+  No, would his my lord or sene the him hear:
+  ```
+- τ = 1 text is "as the model believes", and the model (2.81 bpc) still puts
+  a lot of mass on wrong characters. Better models need less truncation.
+- Caveats: ~55 words per sample, crude metrics (real words ≠ grammar), one
+  prompt. Good enough to show the trade-off, not to rank close settings.
+
+### Why greedy is not "the best text"
+Greedy maximises each step's probability, not the sequence's, and real
+text is not made of the most probable tokens. Holtzman et al. show human
+text has much lower per-token probability than beam/greedy output, which
+falls into repetition loops. Sampling with a truncated tail matches human
+text statistics better.
+
+---
+
 ## Self-check questions
 1. List everything a checkpoint must contain for an exact resume, and what goes wrong if each is missing.
 2. Why does forgetting the RNG state cause drift, even with the same seed?
@@ -214,6 +307,12 @@ processed **in parallel** per step (teacher forcing), and each costs only
 13. Why did the train/val gap open late in training? Name two causes.
 14. Why does greedy decoding produce "the the the..." loops?
 15. Training throughput is 7,800 tok/s but generation is 127 tok/s. Why so different?
+16. Show that τ → 0 gives greedy and τ → ∞ gives uniform, using the ratio $e^{\Delta/\tau}$. Can temperature change which token is most likely?
+17. Why can sampling at τ = 1 produce junk even though τ = 1 is exactly the distribution the model was trained to output?
+18. Top-k vs top-p: when does a fixed k keep too many tokens, and when too few? How does top-p adapt?
+19. Prove that inverse-CDF sampling picks token i with probability $p_i$. Why is a −∞ logit never drawn?
+20. Why must the RNG be passed in explicitly? Which test relies on it?
+21. In the demo table, which setting would you pick for a demo, and why? What are the limits of the two metrics?
 
 ---
 
@@ -223,4 +322,5 @@ processed **in parallel** per step (teacher forcing), and each costs only
 | CuPy: NumPy-compatible arrays on the GPU | CuPy docs, *Basics of CuPy*: https://docs.cupy.dev/en/stable/user_guide/basic.html |
 | NumPy array-function dispatch (NEP 18) | https://numpy.org/neps/nep-0018-array-function-protocol.html |
 | NumPy `.npz` format and `allow_pickle` | NumPy docs, `numpy.load`: https://numpy.org/doc/stable/reference/generated/numpy.load.html |
+| Nucleus (top-p) sampling, why greedy/beam degenerate | Holtzman et al., *The Curious Case of Neural Text Degeneration* (ICLR 2020): https://arxiv.org/abs/1904.09751 |
 | Saving/restoring RNG state | NumPy docs, `BitGenerator.state`: https://numpy.org/doc/stable/reference/random/bit_generators/generated/numpy.random.PCG64.state.html |

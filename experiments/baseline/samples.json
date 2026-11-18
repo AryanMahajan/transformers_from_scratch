@@ -1,0 +1,90 @@
+[
+  {
+    "setting": "greedy",
+    "temperature": 0.0,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.19696969696969696,
+    "real_word": 0.8787878787878787,
+    "diversity_std": 0.0,
+    "real_word_std": 1.1102230246251565e-16,
+    "text": "ROMEO:\nI will the so the so the sould the her the sould\nThe shall the the some the the some the his the songe.\n\nCORIO:\nI will the the shall the the shall the so the sould\nThe shall the the shall the some the some the seend\nThe the shall the the the the some the the songe.\n\nCOUCES:\nI will the the shall the"
+  },
+  {
+    "setting": "tau=0.5",
+    "temperature": 0.5,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.7218268552793935,
+    "real_word": 0.7862094570773841,
+    "diversity_std": 0.04380673158934382,
+    "real_word_std": 0.05210772465445,
+    "text": "ROMEO:\nHall the say the go consetion, and streed king and\nsee than good from this to more morrely;\nTo couse the my that think mest from the for were;\nIn the have were of the them contry the seath,\nRo you you the well man mucthing the shing.\n\nCORTES:\nThen there my the shall mant thou woungef;\nThat shall th"
+  },
+  {
+    "setting": "tau=0.8",
+    "temperature": 0.8,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.8696040868454661,
+    "real_word": 0.6303959131545339,
+    "diversity_std": 0.027129515209920047,
+    "real_word_std": 0.03305644851088979,
+    "text": "ROMEO:\nHadhorres;\nUnonhe made shyseran the to not it patt, I choich\nAnd dreast withning of thot woetse yound, fore\nThat though my entagh, the thus our wath,\nHave were mistalst it coustmer bot it of may.\n\nWARENCERY VICEMM:\nWhy, a as! God Ponchardy your such husbes spong?\n\nKIN RICHARD OWARG III:\nAnd me, wit"
+  },
+  {
+    "setting": "tau=1.0",
+    "temperature": 1.0,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.9155546663109689,
+    "real_word": 0.4415455070917256,
+    "diversity_std": 0.02848234553082615,
+    "real_word_std": 0.03674719090141067,
+    "text": "ROMEO:\nGadeffious\nWas upfe both your have love, morre,\nWhat hath all pelftects withss then spratty\nWoulfus evil lobor tamen the wiler ais:\nSeet you, and thogh pelv the love to hunctrows:\nCatl itd condur trom seent no hat hinstracere.\nFither of my worriow they's this graght i\not sty ity to thee be lighesss"
+  },
+  {
+    "setting": "tau=1.5",
+    "temperature": 1.5,
+    "top_k": null,
+    "top_p": null,
+    "diversity": 0.9725209643605869,
+    "real_word": 0.2830288736420812,
+    "diversity_std": 0.03479175862198792,
+    "real_word_std": 0.06866598319008367,
+    "text": "ROMEO:\nFaatloo;'s\nWat the Fase, ytough soinst nim, ver to tchate I cancict,\nStay, myshorer. Trattu tuuYy; ifst livarm say, I,\nISumbes I mishalrjy moud,'\nent gas ruct helyechove,t askhy? searh exmmelj,I,\nUwheer msuchol'JuI umsst Gatinan; her mesjy\nto timrate,theer row the'mO <unk>oo Srwilutert-ordd:\nI kill wit"
+  },
+  {
+    "setting": "tau=1.0, k=5",
+    "temperature": 1.0,
+    "top_k": 5,
+    "top_p": null,
+    "diversity": 0.7577855450545444,
+    "real_word": 0.687635319846911,
+    "diversity_std": 0.04580731705958036,
+    "real_word_std": 0.05199908087906992,
+    "text": "ROMEO:\nHall then hole the carss worden the to shee,\nAnd thou and all the tharser ofstard thise\nToo truethionge thornack those her mesice ond mort,\nTo subper man to the prom to huncly wound to such\nI'll hither heave the seesesss a with him.\n\nLISIUSTIO:\nTo what's well.\n\nDUIN LAUS OVII:\nWhot will a heart wit"
+  },
+  {
+    "setting": "tau=0.8, k=10",
+    "temperature": 0.8,
+    "top_k": 10,
+    "top_p": null,
+    "diversity": 0.7729640995271294,
+    "real_word": 0.7357114143942861,
+    "diversity_std": 0.027881369787955506,
+    "real_word_std": 0.0297583769871145,
+    "text": "ROMEO:\nHadfurees.\n\nCOMIUCE:\nNo, would his my lord or sene the him hear:\nAs boy yourss the his bloy truethionge sit\nThat thot a my derfeenitiong with beser take,\nTo we live his fullowess that bet seen yours.\n\nLARTOKES:\nAr, thou be would thee pends worn to they.\n\nPAULINT:\nI be to thy hown, my for mand, as t"
+  },
+  {
+    "setting": "tau=1.0, p=0.9",
+    "temperature": 1.0,
+    "top_k": null,
+    "top_p": 0.9,
+    "diversity": 0.8609218594899485,
+    "real_word": 0.5935354491169804,
+    "diversity_std": 0.02454746879718465,
+    "real_word_std": 0.04396976950415008,
+    "text": "ROMEO:\nGaddone. Was thou in sondut spearik.\n\nFirst Servioms Nensed' and dugastes, own them straves\nWithesed to not that souch her entadd, then,\nYour bet thine pelves in you to hondorsts.\n\nCOUCETIO:\nNay, troman's your hat honous a the pelles,\nButh your subs hour thee, the man\nas sty ity to the man mean wit"
+  }
+]

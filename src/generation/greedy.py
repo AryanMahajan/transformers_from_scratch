@@ -6,7 +6,7 @@
         next   = argmax(logits[0, -1])   only the LAST position predicts the unseen token
         ids.append(next)
 Deterministic, so it's the right decoder for checking memorisation. Sampling
-with temperature / top-k comes in Phase 7.
+with temperature / top-k / top-p: src/generation/sampling.py.
 Notes: docs/06_training.md §4
 """
 
