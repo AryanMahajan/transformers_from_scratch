@@ -1,0 +1,118 @@
+{
+  "run": "context/t256_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 256,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 16,
+    "block_size": 256,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 202.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 63462.44154918042,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.8626237535476684,
+    "val_loss": 3.255812668800354,
+    "val_bpc": 2.2719290074671545,
+    "val_perplexity_per_token": 25.940687157420065,
+    "val_perplexity_per_char": 4.8296846996505085,
+    "generalisation_gap": 0.3931889152526855
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.254718232154846,
+      4.280599927902221,
+      3.787849223613739,
+      3.5548030853271486,
+      3.413467454910278,
+      3.255561852455139,
+      3.154400897026062,
+      3.039288508892059,
+      3.005211341381073,
+      2.927356004714966,
+      2.897847902774811,
+      2.886843478679657,
+      2.8800804138183596
+    ],
+    "val_loss": [
+      6.253194260597229,
+      4.322667455673217,
+      3.8973687171936033,
+      3.7554319381713865,
+      3.643286073207855,
+      3.5322989940643312,
+      3.4125445246696473,
+      3.4330662727355956,
+      3.348069226741791,
+      3.313999617099762,
+      3.2845046281814576,
+      3.289546811580658,
+      3.265777039527893
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.265777039527893,
+    "val_bpc": 2.278882215529151
+  },
+  "sample_greedy": "ROMEO:\nI will not, my lord, I'll bear myself.\n\nROMEO:\nI'll bear the king, and I'll be advople.\n\nMERCUTIO:\nI'll bear the queen, and I have been,\nAnd in the Tower, and I'll been,\nAnd in the Tower, and the Tybalt,\nAnd in the queen's precious country's cause.\n\nROMEO:\nIt is the Take, and I'll been,\nAnd, as I have accusion, and myself.\n\nROMEO:\nIt is the queen, and myself,\nAnd I, my lord, I'll bear, and myself.\n\nROMEO:\nIt is addd, I'll be adieuction.\n\nROMEO:\nIt is the queen, and myself,\nAnd I, my lord, and I'll been, and myself.\n\n\nROMEO:\nIt is the queen, and my lord, and myself.\n\n\nROMEO:\nIt is the queen, and myself"
+}

@@ -1,0 +1,118 @@
+{
+  "run": "context/t512_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 512,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 8,
+    "block_size": 512,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 276.4,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 46375.3453021983,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 3.037186260223389,
+    "val_loss": 3.3626346349716187,
+    "val_bpc": 2.3464701276933977,
+    "val_perplexity_per_token": 28.86513989337,
+    "val_perplexity_per_char": 5.085783779810607,
+    "generalisation_gap": 0.32544837474822996
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.250541019439697,
+      4.339631509780884,
+      3.847337532043457,
+      3.683564567565918,
+      3.5591787815093996,
+      3.4301780700683593,
+      3.3247421026229858,
+      3.256423330307007,
+      3.1990212082862852,
+      3.164075231552124,
+      3.073708653450012,
+      3.0547178387641907,
+      3.0706382989883423
+    ],
+    "val_loss": [
+      6.246196842193603,
+      4.344681668281555,
+      3.9977399468421937,
+      3.8319140911102294,
+      3.6836557745933534,
+      3.629583489894867,
+      3.5877286911010744,
+      3.5409741520881655,
+      3.4601211309432984,
+      3.446980965137482,
+      3.424788200855255,
+      3.417391037940979,
+      3.350800633430481
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.350800633430481,
+    "val_bpc": 2.3382122780838777
+  },
+  "sample_greedy": "ROMEO:\nNo, sir, sir, sir, sir, sir, sir,\n\n\nLUCIO:\nIt is a woman's a wordertress.\n\nPOMPEY:\nIt is advost maid, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\n\nPOMPEY:\nI'll been advost maid, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\n\nPOMPEY:\nIto, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\n\nPOMPEY:\n\nPOMPEY:\nProvost:\nIto, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir"
+}

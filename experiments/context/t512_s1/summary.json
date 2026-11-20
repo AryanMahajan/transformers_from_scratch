@@ -1,0 +1,118 @@
+{
+  "run": "context/t512_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 512,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 8,
+    "block_size": 512,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 259.8,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 49795.98996489604,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.967802548408508,
+    "val_loss": 3.3097562980651856,
+    "val_bpc": 2.3095712518349742,
+    "val_perplexity_per_token": 27.378452476984492,
+    "val_perplexity_per_char": 4.957357325698349,
+    "generalisation_gap": 0.34195374965667735
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.243023991584778,
+      4.247413086891174,
+      3.8192381978034975,
+      3.6317926406860352,
+      3.4696947813034056,
+      3.403981339931488,
+      3.2828411221504212,
+      3.224328863620758,
+      3.1179718494415285,
+      3.0539944887161257,
+      3.036002790927887,
+      2.9301998376846314,
+      2.9541181683540345
+    ],
+    "val_loss": [
+      6.239511203765869,
+      4.275993657112122,
+      3.9776994347572328,
+      3.790569579601288,
+      3.6855242252349854,
+      3.6058257102966307,
+      3.5385144352912903,
+      3.461980366706848,
+      3.4535200715065004,
+      3.3590437531471253,
+      3.3396045088768007,
+      3.2940570950508117,
+      3.332526075839996
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.2940570950508117,
+    "val_bpc": 2.2986162374189836
+  },
+  "sample_greedy": "ROMEO:\nIsent, I have you.\n\nMERCUTIO:\nIt is a bawdech you,\nIsofors, I have you.\n\nMERCUTIO:\nI'll be a banish'd, sir, sir,\nI'll take it, sir, sir, sir, sir,\nI'll take it is a word.\n\nANGEOMEO:\nIsave you, sir, sir, sir, sir,\nI'll take it, sir, sir, sir,\nI'll take it is a word.\n\nANGE:\nIt is a words, sir, sir, sir,\nI'll take it is a bawdene,\nAnd I have been a bawd,\nAnd softle, I have been, and you\nAnd take it is a words, and you have\nTo been addsion, and you\nAnd take the people, and you\nAnd take the country, and young\nAnd take the people, and pleass,\nAnd take it is a childred, and you\nAnd take the people, and plea"
+}

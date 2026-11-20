@@ -1,0 +1,118 @@
+{
+  "run": "context/t64_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 64,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 64,
+    "block_size": 64,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 27.2,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 80073.24934197607,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.700012743473053,
+    "val_loss": 3.1593294811248778,
+    "val_bpc": 2.2046023596801434,
+    "val_perplexity_per_token": 23.55479669703339,
+    "val_perplexity_per_char": 4.609474733609334,
+    "generalisation_gap": 0.4593167376518248
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.260524010658264,
+      3.972321403026581,
+      3.5030734300613404,
+      3.250033712387085,
+      3.103103530406952,
+      2.988910734653473,
+      2.9282739400863647,
+      2.853057622909546,
+      2.8089754223823546,
+      2.7688921213150026,
+      2.7179221630096437,
+      2.694255840778351,
+      2.7025442600250242
+    ],
+    "val_loss": [
+      6.260141110420227,
+      4.041472780704498,
+      3.6680453419685364,
+      3.511050796508789,
+      3.3827889442443846,
+      3.3262326955795287,
+      3.258099174499512,
+      3.2228021740913393,
+      3.2238810777664186,
+      3.168823218345642,
+      3.17983363866806,
+      3.165718114376068,
+      3.1675156950950623
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.165718114376068,
+    "val_bpc": 2.2090603929510797
+  },
+  "sample_greedy": "ROMEO:\nI am appeard, I'll tell thee, and fear\nTo be a pursual, and fear'd himself\nTo bear the queen's people, and quiteal\nTo bear the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd take the queen of the Duke of Tyrrel\nAnd t"
+}
