@@ -271,6 +271,93 @@ convincing.
 
 ---
 
+## 4. Error analysis: where the bits go: `src/analysis/error_analysis.py`, `scripts/error_analysis.py`
+
+### Purpose
+The loss is a mean of per-token losses $\ell_t = -\ln p(x_{t+1} \mid x_{\le t})$.
+Grouping the *sum* by a property of the target token shows what the
+remaining loss is spent on. Run on the centre model over **every**
+non-overlapping validation window: 421 × 127 = 53,467 predictions.
+
+Mean **2.245** bits/char. (The training summary's 2.225 comes from 100 random
+batches; this is an exact pass. All grid runs use the same estimator, so
+comparisons between them are unaffected.) Top-1 accuracy 31.9 %, top-5 53.4 %.
+
+### By kind of target token
+A BPE token is classified from its string and the token before it (tests use
+a toy vocabulary with known answers):
+
+| category | share of tokens | share of loss | bits/token | top-1 |
+|---|---|---|---|---|
+| word start (`␣the`, a word after punctuation) | 31.2 % | **44.4 %** | 6.60 | 7.6 % |
+| word continuation (`ing` after `walk`) | 42.0 % | 36.9 % | 4.08 | 40.2 % |
+| line start (after `↵`: speaker names, verse openings) | 6.5 % | 7.2 % | 5.17 | 10.6 % |
+| punctuation | 10.4 % | 7.9 % | 3.55 | 40.7 % |
+| newline | 8.3 % | 1.5 % | 0.85 | 90.3 % |
+
+- **Choosing the next word is the hard part.** Word starts are under a third
+  of the tokens but almost half of the loss, with 7.6 % top-1 accuracy.
+  Once a word has started, finishing it is far easier (40 %).
+- **Layout is nearly solved.** Newlines cost 0.85 bits and are predicted
+  right 90 % of the time: the model knows the verse line length and the
+  "blank line, NAME:, newline" structure.
+
+### By training frequency of the target
+Targets split into four bins holding equal numbers of validation occurrences:
+the 14 most frequent tokens cost 2.51 bits each (60 % top-1); the 329 rarest
+cost 6.06 (21 %). Rare tokens are a quarter of the targets but a third of the loss.
+
+### A distribution shift in the split
+The most confident mistakes are all speaker names: after `↵↵FERDINA` the
+model says `:` with p ≈ 1.00, after `↵↵PR` it says `INC` (PRINCE). The
+validation split is the **last 10 % of the file**, mostly *The Tempest*, and
+**316 of its 871 speaker turns are by characters who never appear in training**
+(PROSPERO 62, SEBASTIAN 42, ANTONIO 38, GONZALO 37, MIRANDA 32, ARIEL 21, …).
+
+| target tokens | share of tokens | share of loss | bits/token | top-1 |
+|---|---|---|---|---|
+| speaker name, seen in training | 6.0 % | 2.3 % | 1.76 | 68 % |
+| speaker name, **unseen** in training | 3.7 % | 6.7 % | **8.41** | 14 % |
+| not a name | 90.4 % | 91.1 % | 4.68 | 30 % |
+
+If unseen names cost what seen ones do, validation would fall by about
+**0.12 bits/char** (2.245 → ≈ 2.13). That part of the absolute number is a
+property of the split, not of the model. It is identical for every model, so
+the experiment comparisons stand. A shuffled-by-play split would remove it,
+but the contiguous split is the standard for this dataset, so it is kept and
+stated.
+
+### Calibration
+Bin predictions by confidence (probability of the top token) and compare with
+how often the top token was right. Perfect calibration lies on the diagonal.
+
+$$\text{ECE} = \sum_b \frac{n_b}{N}\,\bigl|\text{acc}_b - \text{conf}_b\bigr|$$
+
+ECE = **0.040**. The model is **slightly overconfident in every bin** (e.g.
+says 0.55, right 0.46; says 0.97, right 0.92). That fits the train/val gap
+(0.32 bits/char, §2): probabilities are sharpened on the training text and
+carry over to validation text where they are less deserved. It is still
+fairly well calibrated: cross-entropy training rewards honest probabilities.
+(Tests: synthetic "right with probability = confidence" data gives ECE < 0.01;
+"says 90 %, right 60 %" gives exactly 0.3.)
+
+### Costliest single tokens
+`,` (2.3 % of all loss), `↵` (1.5 %), `.` (1.5 %), `:` (1.3 %) and `O`
+(1.3 %: 11.4 bits each, mostly the second half of PROSPERO and *O* as an
+interjection). Punctuation is cheap per token but frequent; `O` is rare and
+very expensive.
+
+### Takeaways
+- The remaining loss is mostly **content** (which word comes next), not
+  **form** (spelling, line breaks, punctuation), the ordering one expects
+  from a small model on a small corpus.
+- A model's worst errors can come from the **data split**, not the model.
+  Reading the most confident mistakes found it in one look.
+- Calibration is a cheap extra lens: the mild overconfidence is the same
+  memorisation that the train/val gap shows.
+
+---
+
 ## Self-check questions
 1. Why change one variable at a time? What would a run that changed depth and width together tell you?
 2. Why run extra seeds before the experiments? How do you decide whether a difference is real?
@@ -290,3 +377,9 @@ convincing.
 16. The T = 512 model looks much further back but is worse. Which measurement shows the far attention is not useful, and why is it needed in addition to the attention maps?
 17. Give two reasons a longer window could hurt at a fixed number of tokens per step. What experiment would separate them?
 18. What is an attention sink, and how would you detect one with these statistics?
+19. Why group the *sum* of per-token losses rather than compare mean losses per category?
+20. Word starts are 31 % of tokens but 44 % of the loss. What does that say about what the model has and hasn't learned?
+21. Why do the frequency bins hold equal numbers of target *occurrences* rather than equal numbers of distinct tokens?
+22. Define ECE. Why can a model be well calibrated and still have high loss?
+23. Unseen speaker names cost 8.4 bits/token. Why doesn't that invalidate comparisons between models? What would you change to remove it?
+24. Why is the training summary's validation number (2.225) slightly different from the full pass (2.245)?

@@ -1,0 +1,194 @@
+{
+ "run": "pe_scale/sin_scaled_s0",
+ "tokens": 53467,
+ "bits_per_char": 2.2451,
+ "top1": 0.319,
+ "top5": 0.5344,
+ "ece": 0.0395,
+ "speaker_turns": {
+  "seen": 555,
+  "unseen": 316
+ },
+ "speakers": [
+  {
+   "group": "name, seen in train",
+   "tokens": 3184,
+   "token_share": 0.0596,
+   "loss_share": 0.0225,
+   "mean_nll": 1.2176,
+   "accuracy": 0.68
+  },
+  {
+   "group": "name, unseen in train",
+   "tokens": 1965,
+   "token_share": 0.0368,
+   "loss_share": 0.0666,
+   "mean_nll": 5.8278,
+   "accuracy": 0.1384
+  },
+  {
+   "group": "not a name",
+   "tokens": 48318,
+   "token_share": 0.9037,
+   "loss_share": 0.9109,
+   "mean_nll": 3.2429,
+   "accuracy": 0.3025
+  }
+ ],
+ "categories": [
+  {
+   "group": "word start",
+   "tokens": 16701,
+   "token_share": 0.3124,
+   "loss_share": 0.4442,
+   "mean_nll": 4.5755,
+   "accuracy": 0.0764
+  },
+  {
+   "group": "word continuation",
+   "tokens": 22449,
+   "token_share": 0.4199,
+   "loss_share": 0.3695,
+   "mean_nll": 2.8312,
+   "accuracy": 0.4025
+  },
+  {
+   "group": "line start",
+   "tokens": 3459,
+   "token_share": 0.0647,
+   "loss_share": 0.072,
+   "mean_nll": 3.583,
+   "accuracy": 0.1055
+  },
+  {
+   "group": "punctuation",
+   "tokens": 5536,
+   "token_share": 0.1035,
+   "loss_share": 0.0793,
+   "mean_nll": 2.4631,
+   "accuracy": 0.4072
+  },
+  {
+   "group": "newline",
+   "tokens": 4436,
+   "token_share": 0.083,
+   "loss_share": 0.0153,
+   "mean_nll": 0.5921,
+   "accuracy": 0.9031
+  },
+  {
+   "group": "other",
+   "tokens": 886,
+   "token_share": 0.0166,
+   "loss_share": 0.0197,
+   "mean_nll": 3.8261,
+   "accuracy": 0.1332
+  }
+ ],
+ "frequency": [
+  {
+   "group": 0,
+   "tokens": 13359,
+   "token_share": 0.2499,
+   "loss_share": 0.1353,
+   "mean_nll": 1.7418,
+   "accuracy": 0.6054
+  },
+  {
+   "group": 1,
+   "tokens": 13342,
+   "token_share": 0.2495,
+   "loss_share": 0.2669,
+   "mean_nll": 3.4414,
+   "accuracy": 0.2064
+  },
+  {
+   "group": 2,
+   "tokens": 13413,
+   "token_share": 0.2509,
+   "loss_share": 0.2715,
+   "mean_nll": 3.4825,
+   "accuracy": 0.2578
+  },
+  {
+   "group": 3,
+   "tokens": 13353,
+   "token_share": 0.2497,
+   "loss_share": 0.3263,
+   "mean_nll": 4.2031,
+   "accuracy": 0.2062
+  }
+ ],
+ "calibration": [
+  [
+   0.0,
+   0.1,
+   9844.0,
+   0.0733,
+   0.0701
+  ],
+  [
+   0.1,
+   0.2,
+   13444.0,
+   0.1449,
+   0.1282
+  ],
+  [
+   0.2,
+   0.3,
+   7618.0,
+   0.2448,
+   0.1949
+  ],
+  [
+   0.3,
+   0.4,
+   4705.0,
+   0.3467,
+   0.2833
+  ],
+  [
+   0.4,
+   0.5,
+   3307.0,
+   0.4477,
+   0.362
+  ],
+  [
+   0.5,
+   0.6,
+   2493.0,
+   0.5483,
+   0.4637
+  ],
+  [
+   0.6,
+   0.7,
+   2248.0,
+   0.6487,
+   0.593
+  ],
+  [
+   0.7,
+   0.8,
+   2214.0,
+   0.7507,
+   0.7046
+  ],
+  [
+   0.8,
+   0.9,
+   2629.0,
+   0.8509,
+   0.7733
+  ],
+  [
+   0.9,
+   1.0,
+   4965.0,
+   0.9658,
+   0.915
+  ]
+ ]
+}
