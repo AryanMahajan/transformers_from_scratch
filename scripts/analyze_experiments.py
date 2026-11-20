@@ -195,8 +195,13 @@ def main():
               if sum(g is not None for _, _, g in loaded[e]) > 1]
     if panels:
         centre = loaded["depth"][1][2]
-        fig, axes = plt.subplots(1, len(panels), figsize=(3.1 * len(panels), 3.5), facecolor=SURFACE, sharey=True)
+        # model size gets its own y-axis: its overfit final values (up to ~3 bpc) would flatten the
+        # other panels, whose differences are a few hundredths. The other panels share one scale.
+        fig, axes = plt.subplots(1, len(panels), figsize=(3.1 * len(panels), 3.5), facecolor=SURFACE)
         axes = np.atleast_1d(axes)
+        shared = [g for e in panels if e != "model_size" for _, _, g in loaded[e] if g]
+        lo = min(g["val"] - (g["val_std"] or 0) for g in shared + [centre]) - 2 * (noise or 0) - 0.01
+        hi = max(g["val"] + (g["val_std"] or 0) for g in shared + [centre]) + 2 * (noise or 0) + 0.01
         for ax, exp in zip(axes, panels):
             title, xlabel, _, _ = EXPERIMENTS[exp]
             pts = [(x, label, g) for label, x, g in loaded[exp] if g]
@@ -223,8 +228,16 @@ def main():
                 ax.plot(xs, [g["best"] for _, _, g in pts], color=CATEGORICAL[1], lw=2, ls="--", marker="o",
                         ms=7, mec=SURFACE, mew=2, label="best periodic")
                 ax.legend(frameon=False, fontsize=7, labelcolor=INK)
+            first_shared = ax is axes[0]
             style(ax, title, xlabel if exp != "positional_encoding" else "",
-                  "final val bits/char" if ax is axes[0] else "")
+                  "final val bits/char" if first_shared or exp == "model_size" else "")
+            if exp == "model_size":
+                ax.set_title(title + " (own y-axis)", loc="left", fontsize=11, color=INK)
+                ax.set_xlim(min(xs) / 1.6, max(xs) * 1.6)
+            else:
+                ax.set_ylim(lo, hi)
+                if not first_shared:
+                    ax.tick_params(labelleft=False)
         fig.suptitle("Final validation bits/char, mean ± std over seeds (grey band: centre mean ± 2σ seed noise)",
                      fontsize=10, color=INK2, x=0.01, ha="left")
         fig.tight_layout()
