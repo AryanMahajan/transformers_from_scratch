@@ -1,0 +1,118 @@
+{
+  "run": "depth/n2_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 2,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 132736,
+  "steps": 3000,
+  "seconds_this_session": 98.5,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 134842.3615557903,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.913306097984314,
+    "val_loss": 3.2489808678627012,
+    "val_bpc": 2.2671617286638526,
+    "val_perplexity_per_token": 25.764069541717312,
+    "val_perplexity_per_char": 4.813751703826053,
+    "generalisation_gap": 0.3356747698783873
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.247153854370117,
+      4.040774881839752,
+      3.6054571866989136,
+      3.428142511844635,
+      3.3286256313323976,
+      3.2158960580825804,
+      3.1220352053642273,
+      3.0226092100143434,
+      3.013768398761749,
+      2.984594941139221,
+      2.9282633900642394,
+      2.9183595776557922,
+      2.9172589778900146
+    ],
+    "val_loss": [
+      6.243987274169922,
+      4.090675616264344,
+      3.8001832127571107,
+      3.627368116378784,
+      3.5541447520256044,
+      3.460679495334625,
+      3.4387283325195312,
+      3.328458571434021,
+      3.3238431572914124,
+      3.3085220217704774,
+      3.285647213459015,
+      3.2704240560531614,
+      3.260542571544647
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.260542571544647,
+    "val_bpc": 2.275229566909728
+  },
+  "sample_greedy": "ROMEO:\nIs the greater of the crowns of the crown.\n\nPOLIXENES:\nIt is a word, and I have been so,\nAnd, and the country of the court\nTo bear the crown of the crowns of the crown.\n\nPOLIXENES:\nIt is appearful, and my lord,\nAnd, as I have been perform'd, and I'll bear\nTo bear the royalty of the country,\nAnd, as I'll not to the right of the crown,\nAnd, as I'll not to the right of the crown,\nAnd, as I'll not to the right of the crown,\nAnd, in the Duke of York, and my lord,\nAnd I will not bear the Duke of York,\nAnd, in the Duke of York, and my lord,\nAnd, my Lord Hastings, my lord, and Dukeeps,\nAnd, my Lord Hastings, my lord, and Dukeeps,\nAnd, my Lord Hastings, my"
+}

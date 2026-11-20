@@ -1,0 +1,118 @@
+{
+  "run": "depth/n2_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 2,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 132736,
+  "steps": 3000,
+  "seconds_this_session": 92.0,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 143113.55185632146,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.951870205402374,
+    "val_loss": 3.2817926669120787,
+    "val_bpc": 2.290058033098632,
+    "val_perplexity_per_token": 26.623456936462475,
+    "val_perplexity_per_char": 4.890757839886781,
+    "generalisation_gap": 0.3299224615097045
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.2571762800216675,
+      4.115295267105102,
+      3.707293117046356,
+      3.4905277371406553,
+      3.361508369445801,
+      3.2181013226509094,
+      3.176887273788452,
+      3.0844585299491882,
+      3.0352310299873353,
+      2.980546033382416,
+      2.9541863203048706,
+      2.9657021045684813,
+      2.9813826084136963
+    ],
+    "val_loss": [
+      6.254315972328186,
+      4.168773937225342,
+      3.8389569878578187,
+      3.6852230072021483,
+      3.5762410402297973,
+      3.47591313123703,
+      3.4489033222198486,
+      3.3958768129348753,
+      3.3446856260299684,
+      3.3008568048477174,
+      3.3037799835205077,
+      3.3317899346351623,
+      3.292452073097229
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.292452073097229,
+    "val_bpc": 2.297496241797335
+  },
+  "sample_greedy": "ROMEO:\nI'll take it, sir, sir, sir, sir, sir, sir, sir, sir,\nwould not be, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwould you have.\n\nESCALUS:\nI'll not, sir.\n\nESCALUS:\nI am not, sir.\n\nESCALUS:\nI am not, sir.\n\nESCALUS:\nI'll not, sir.\n\nCome, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwe'er, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwech you have.\n\n\nESCALUS:\nI'll not say, sir.\n\nComeo, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwech you have.\n\n\nESCALUS:\nI'll not, sir.\n\nComeo, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwech you have.\n\n\nESCALUS:\nI'll not, sir.\n\nComeo, sir, sir, sir, sir"
+}

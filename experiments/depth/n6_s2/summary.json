@@ -1,0 +1,118 @@
+{
+  "run": "depth/n6_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 6,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 332416,
+  "steps": 3000,
+  "seconds_this_session": 244.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 52439.01503276158,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.6467001128196714,
+    "val_loss": 3.181899838447571,
+    "val_bpc": 2.22035211395861,
+    "val_perplexity_per_token": 24.0924819235068,
+    "val_perplexity_per_char": 4.660071575834458,
+    "generalisation_gap": 0.5351997256278995
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.25761730670929,
+      4.198441362380981,
+      3.588888692855835,
+      3.3323695421218873,
+      3.186136174201965,
+      3.02778023481369,
+      2.9623868584632875,
+      2.846687948703766,
+      2.7870173931121824,
+      2.7147173285484314,
+      2.6714786171913145,
+      2.6714065313339233,
+      2.6792904138565063
+    ],
+    "val_loss": [
+      6.254779577255249,
+      4.219079399108887,
+      3.7514546275138856,
+      3.5462493181228636,
+      3.46369354724884,
+      3.379576063156128,
+      3.3364508152008057,
+      3.2786043763160704,
+      3.2433724284172056,
+      3.1895079612731934,
+      3.224477934837341,
+      3.223396897315979,
+      3.1957710146903993
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2250,
+    "val_loss": 3.1895079612731934,
+    "val_bpc": 2.2256611156421355
+  },
+  "sample_greedy": "ROMEO:\nI'll tell thee, I'll tell thee, and I'll pardon thee\nTo keep the queen's pretty of thyself.\n\nROMEO:\nI am a sins, and I'll tell thee, and I\nAnd take myself, and I'll perceive\nTo bear the queen.\n\nPERDITA:\nIt is a present,\nAnd I have a most of means,\nAnd I have a most oftress, and I have\nAtt a present to the people, and the\nOf the people, and the people, and the\nfliction of the people, and the people\nTo bear the present of the people, and the\nflown to the present of the people, and\nIs not bear him.\n\nCORIOLANUS:\nI'll tell you, sir, sir,\nIt is a presently.\n\nCORIOLANUS:\nI'll tell you, sir, sir,\nIt is a pleasure of your honour.\n\nCOR"
+}

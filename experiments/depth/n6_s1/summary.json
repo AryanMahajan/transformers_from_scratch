@@ -1,0 +1,118 @@
+{
+  "run": "depth/n6_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 6,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 332416,
+  "steps": 3000,
+  "seconds_this_session": 246.9,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 51801.24260120096,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.626458373069763,
+    "val_loss": 3.167926948070526,
+    "val_bpc": 2.2106017326575067,
+    "val_perplexity_per_token": 23.75818132657507,
+    "val_perplexity_per_char": 4.628682907156757,
+    "generalisation_gap": 0.5414685750007631
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.246747303009033,
+      4.111131739616394,
+      3.5663867473602293,
+      3.316445469856262,
+      3.1526397109031676,
+      3.0227888345718386,
+      2.907624876499176,
+      2.793161988258362,
+      2.773948442935944,
+      2.7225931167602537,
+      2.6604992866516115,
+      2.646163272857666,
+      2.6296441078186037
+    ],
+    "val_loss": [
+      6.243465161323547,
+      4.157360863685608,
+      3.774604392051697,
+      3.5487468123435972,
+      3.4300224423408507,
+      3.348586368560791,
+      3.3300984382629393,
+      3.199589467048645,
+      3.21223064661026,
+      3.205433762073517,
+      3.1893425822257995,
+      3.180491876602173,
+      3.184292197227478
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2750,
+    "val_loss": 3.180491876602173,
+    "val_bpc": 2.2193696282681343
+  },
+  "sample_greedy": "ROMEO:\nAn if you be so.\n\nROMEO:\nNot afford, sir, I am not to be\nthe twenty of the cause, and I am\ntheard, and being very right, and I am\ntheard, and, and, and, and, and, and, and, and, and, and,\nthere, and, and, and, and, and, and, and, and, and, and\nthey, and, and, and, and, and, and, and, and, and, and, and\nthere, and, and, and, and, and, and, and, and, and, and, and\nthere, and, and, and, and, and, and, and, and, and, and,\nthere, and, and, and, and, and, and, and, and, and, and\nthere, and, and, and, and, and, and, and, and, and, and,\nthere, and, and, and, and, and, and, and, and, and, and,\nthere, and, and, and, and, and, and, and, and, and, and\nthere, and, and, and, and, and"
+}
