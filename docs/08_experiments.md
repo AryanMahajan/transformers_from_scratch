@@ -358,6 +358,117 @@ very expensive.
 
 ---
 
+## 5. Results of the grid: `reports/results.md`, `reports/figures/summary.png`
+
+All values are validation bits/char, mean ± sample std over seeds 0, 1, 2
+(single seed where stated). Centre: **2.225 ± 0.018**.
+
+### How to read a difference
+Seed std σ = 0.018, so a 3-seed mean has standard error ≈ σ/√3 = 0.010, and
+the difference of two 3-seed means has SE ≈ √2 × 0.010 = 0.015. A difference
+is called **real** if it exceeds about 2 × 0.015 = 0.03, **no effect** below
+about 0.015, and borderline in between.
+
+### A: depth (D = 64, H = 4)
+| N | params | val | train | gap |
+|---|---|---|---|---|
+| 2 | 133k | 2.273 ± 0.015 | 2.033 | 0.240 |
+| **4** | 233k | 2.225 ± 0.018 | 1.908 | 0.317 |
+| 6 | 332k | 2.210 ± 0.010 | 1.834 | 0.377 |
+
+- **N = 2 is worse (+0.048, real)**; N = 6 is better by only 0.015 (no clear
+  effect). Returns diminish fast: layers 3–4 gave about 3× more than layers 5–6.
+- Depth keeps lowering *training* loss (2.03 → 1.91 → 1.83) but validation
+  barely follows: the gap grows 0.24 → 0.32 → 0.38. Extra layers mostly add
+  memorisation at this data size.
+
+### B: heads (D = 64, so head width 32 / 16 / 8)
+| H | val | gap |
+|---|---|---|
+| 2 | 2.208 ± 0.011 | 0.300 |
+| **4** | 2.225 ± 0.018 | 0.317 |
+| 8 | 2.225 ± 0.006 | 0.318 |
+
+- **No effect.** H = 2 is 0.017 lower, about one SE. Same parameter count,
+  same training loss (1.908 in all three). Splitting 64 dimensions into more,
+  narrower heads neither helps nor hurts here, even at width 8 per head.
+- §3 found only a few distinct head roles (local, word-start, speaker
+  anchor), and two wide heads can cover them.
+
+### C: context (same 4096 tokens per step, batch = 4096 / T)
+| T | batch | val | train | gap |
+|---|---|---|---|---|
+| 64 | 64 | 2.219 ± 0.012 | 1.880 | 0.339 |
+| **128** | 32 | 2.225 ± 0.018 | 1.908 | 0.317 |
+| 256 | 16 | 2.252 ± 0.019 | 1.964 | 0.288 |
+| 512 | 8 | **2.312 ± 0.034** | 2.075 | 0.236 |
+
+- T = 64 ties the centre; T = 256 is borderline worse (+0.027); **T = 512 is
+  clearly worse (+0.087)** and also the least stable across seeds (std 0.034).
+- **Training loss rises with T** (1.88 → 2.08) while the gap *shrinks*. The
+  long-context models are not overfitting; they fit even the training text
+  worse. That supports the §3 explanation, training efficiency: 8 windows per
+  batch give a noisier gradient than 32 (tokens within a window are
+  correlated), and §3 showed that the extra context is not used anyway.
+
+### D: positions (with √D)
+Sinusoidal 2.225 ± 0.018 vs learned 2.216 ± 0.008 (+8,192 parameters):
+**no effect** (0.009). Before the √D fix it looked like 0.37 (§2).
+
+### E: width (N = 4, last one N = 6)
+| D | params | lr | seeds | final val | best periodic val (step) | train |
+|---|---|---|---|---|---|---|
+| **64** | 0.23M | 3e-3 | 3 | 2.225 ± 0.018 | 2.231 ± 0.015 | 1.908 |
+| 128 | 0.86M | 3e-3 | 3 | 2.299 ± 0.011 | 2.209 ± 0.022 | 1.465 |
+| 256 | 3.3M | 1e-3 | 1 | 2.599 | 2.195 (1250) | 0.892 |
+| 384 (N = 6) | 10.8M | 6e-4 | 1 | 3.075 | 2.217 (750) | 0.305 |
+
+- **Final loss gets worse with size**, steeply: the 10.8M model ends at 3.08,
+  0.85 worse than the 0.23M centre (though still better than the character
+  bigram's 3.58). Its training loss falls to 0.31 bits/char: it has
+  **memorised** much of the 485k-token training set (seen ~25 times, no dropout).
+- **Even with early stopping, size barely helps.** Best-periodic values are
+  within 0.04 of the centre. And they are *optimistic*: each is the minimum of
+  12 noisy 20-batch estimates, which is biased low. Treat "best" as an upper
+  bound on what early stopping would give.
+- **Why:** parameters and data must grow together (Hoffmann et al. 2022
+  suggest ~20 training tokens per parameter at compute-optimality). The 0.23M
+  centre has ~2 *unique* training tokens per parameter; the 10.8M model has
+  0.04. Repeating data is far less valuable than new data, so beyond ~0.2M
+  parameters this corpus is the bottleneck, not the model.
+- Confound (stated in §1): the two largest models use lower learning rates.
+  The overfitting curves (validation rising from step 750 / 1250 while
+  training loss keeps falling) are the signature of too little data, not of
+  a bad learning rate.
+
+### Ranking of effects
+| change | effect on val bits/char | verdict |
+|---|---|---|
+| √D token scale (sinusoidal) | **−0.358** | the largest effect in the study, a fix rather than a choice |
+| width 0.23M → 10.8M (final) | +0.85 | overfitting; with early stopping ±0.04 |
+| context 128 → 512 | +0.087 | real: slower optimisation, context unused |
+| depth 4 → 2 | +0.048 | real |
+| context 128 → 256 | +0.027 | borderline |
+| depth 4 → 6, heads 2 / 8, context 64, learned positions | ≤ 0.017 | no effect |
+
+**Overall:** at 0.23M parameters and 0.5M unique training tokens, the
+architecture of the centre model is close to the best this data allows. Of
+everything tried, only two changes (shallower, longer context) clearly hurt,
+and none clearly helped. The biggest lever was a correctness-of-design fix.
+The next gains would come from **more data or regularisation** (dropout,
+early stopping), not from a different shape.
+
+### Pitfalls met
+- The first summary figure shared one y-axis across panels; the overfit
+  model-size finals (up to 3.08) flattened every other panel, whose
+  differences are a few hundredths. The model-size panel now has its own axis.
+- Curve legends inside the axes collided with the direct end labels; moved below.
+- The training curves come from 20-batch periodic estimates and are noisier
+  than the 100-batch finals: their end points can rank runs differently than
+  the tables. The tables are the result.
+
+---
+
 ## 📚 Further reading
 | Topic | Source |
 |---|---|
@@ -393,3 +504,9 @@ very expensive.
 22. Define ECE. Why can a model be well calibrated and still have high loss?
 23. Unseen speaker names cost 8.4 bits/token. Why doesn't that invalidate comparisons between models? What would you change to remove it?
 24. Why is the training summary's validation number (2.225) slightly different from the full pass (2.245)?
+25. With seed std 0.018, what is the standard error of the difference between two 3-seed means? Which grid differences pass a 2-SE threshold?
+26. Deeper models have lower training loss but almost the same validation loss. What does the growing gap tell you?
+27. In Experiment C, training loss *rises* with T while the gap shrinks. Why does that rule out overfitting as the cause, and what does it support instead?
+28. Why is the minimum of 12 periodic validation estimates an optimistic (biased) number?
+29. Compute unique training tokens per parameter for the 0.23M and 10.8M models. How does this explain Experiment E?
+30. The √D fix changed validation loss more than any architectural choice. What does that say about where to look first when a model underperforms?

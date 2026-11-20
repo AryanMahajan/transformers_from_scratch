@@ -1,6 +1,6 @@
 # A Decoder-Only Transformer from Fundamental Operations: Implementation and Experiments
 
-*Endterm report, draft.* Code: this repository. Every number below has a
+*Endterm report.* Code: this repository. Every number below has a
 command in [`docs/REPRODUCE.md`](../docs/REPRODUCE.md); derivations are in the
 per-phase notes in [`docs/`](../docs/).
 
@@ -20,6 +20,9 @@ configuration. The study found a design flaw before it found any architectural
 effect: fixed sinusoidal positions were 35× larger than the token embeddings
 at initialisation, which cost 0.36 bits/char and inflated seed variance 4.5×.
 Scaling token embeddings by √d_model (Vaswani et al. §3.4) fixes both.
+Around the fixed model, only two changes clearly hurt (two layers instead of
+four: +0.05; a 512-token context: +0.09) and none clearly helped; models
+larger than 0.23M parameters overfit the 0.5M-token training set.
 Attention analysis shows interpretable heads (previous-token, word-start,
 speaker-line) and explains why longer contexts hurt: heads reach far back but
 the loss stops improving after ~32–64 tokens. Error analysis locates the
@@ -176,33 +179,50 @@ centre.
 232,576 parameters. Each experiment changes one variable; every run trains
 3000 steps × 4096 tokens (12.3M tokens). The context experiment keeps tokens
 per step fixed (batch = 4096 / T). Cheap configurations use seeds 0, 1, 2
-(mean ± std); the two largest models are single-seed. A difference smaller
-than about two seed standard deviations is reported as no effect. The best
+(mean ± std); the two largest models are single-seed. The best
 periodic validation loss is recorded alongside the final one, because larger
 models overfit before the end.
 
-> **[To fill when the grid finishes: 3-seed tables for A (depth), B (heads),
-> C (context), E (width), from `reports/results.md`; summary figure
-> `reports/figures/summary.png`.]**
+How to read a difference: the seed std is σ = 0.018, so the difference of two
+3-seed means has a standard error of ≈ 0.015. Differences above ~0.03 are
+called real, below ~0.015 no effect.
 
-Seed-0 results so far (val bits/char, centre 2.232 for seed 0, 3-seed mean 2.225):
-
-| experiment | values → final val (best periodic) |
+| experiment | values: val bits/char, mean ± std over 3 seeds |
 |---|---|
-| A depth N | 2: 2.262 · 6: 2.200 (2.187) |
-| B heads H | 2: 2.195 · 8: 2.229 |
-| C context T | 64: 2.226 · 256: 2.249 · 512: 2.279 (2.258) |
-| E width D (params) | 128 (0.86M): 2.286 (2.214) · 256 (3.3M): 2.599 (2.195) · 384, N=6 (10.8M): 3.075 (2.217) |
+| A depth N | 2: 2.273 ± 0.015 · **4: 2.225 ± 0.018** · 6: 2.210 ± 0.010 |
+| B heads H | 2: 2.208 ± 0.011 · **4: 2.225 ± 0.018** · 8: 2.225 ± 0.006 |
+| C context T | 64: 2.219 ± 0.012 · **128: 2.225 ± 0.018** · 256: 2.252 ± 0.019 · 512: 2.312 ± 0.034 |
+| D positions | **sinusoidal: 2.225 ± 0.018** · learned: 2.216 ± 0.008 |
 
-Already clear from seed 0:
-- **Width does not pay with this much data.** The 3.3M and 10.8M models reach
-  their best validation loss early (steps 1250 and 750) and then overfit badly:
-  ~485k training tokens are seen ~25 times, without dropout. Their best points
-  barely beat the 0.23M centre. This is consistent with the compute-optimal
-  view of Hoffmann et al. (2022) that parameters and training tokens should
-  grow together; here the tokens are fixed and repeated, so extra parameters
-  mostly memorise.
-- **Longer context hurts** at fixed tokens per step; §6 explains why.
+| E width | params | final val | best periodic val | train |
+|---|---|---|---|---|
+| **D = 64** | 0.23M | 2.225 ± 0.018 | 2.231 ± 0.015 | 1.91 |
+| D = 128 | 0.86M | 2.299 ± 0.011 | 2.209 ± 0.022 | 1.47 |
+| D = 256 (1 seed) | 3.3M | 2.599 | 2.195 (step 1250) | 0.89 |
+| D = 384, N = 6 (1 seed) | 10.8M | 3.075 | 2.217 (step 750) | 0.31 |
+
+![Summary of the grid](figures/summary.png)
+
+- **Depth.** Two layers are clearly worse (+0.048); six are not clearly better
+  (−0.015). Deeper models lower training loss more than validation loss: the
+  train/validation gap grows from 0.24 to 0.38 bits/char.
+- **Heads.** No effect: 2, 4 and 8 heads give the same training loss and
+  validation within one standard error.
+- **Context.** T = 64 ties the centre, T = 256 is borderline worse, and
+  **T = 512 is clearly worse (+0.087)**. Training loss *rises* with T while the
+  gap shrinks, so the long-context models are not overfitting; they optimise
+  more slowly (8 windows per batch instead of 32), and §6 shows the extra
+  context goes unused.
+- **Positions.** With the √D fix, sinusoidal and learned positions tie.
+- **Width.** Final loss worsens steeply with size because larger models
+  memorise: the 10.8M model's training loss falls to 0.31 bits/char.
+  Even the best periodic values, which are optimistic because they are the
+  minimum of 12 noisy estimates, stay within 0.04 of the centre. With ~485k
+  unique training tokens, the centre already has only ~2 unique tokens per
+  parameter, and the 10.8M model 0.04. This is consistent with the
+  compute-optimal view of Hoffmann et al. (2022) that parameters and
+  training tokens should grow together: here data, not model size, is the
+  bottleneck.
 
 ---
 
@@ -296,8 +316,13 @@ the grid. Analysis tools turned surprising results (long context hurting,
 large models doing no better) into explanations: unused attention reach, and
 too few tokens for the parameters.
 
-> **[To fill when the grid finishes: final ranking of architectural effects
-> with 3-seed confidence.]**
+**Ranking of effects** (validation bits/char): the √D token scale −0.36
+(a fix, not a choice) > width without early stopping +0.85 (overfitting) >
+context 512 +0.087 > depth 2 +0.048 > context 256 +0.027 (borderline) >
+depth 6, heads 2 or 8, context 64 and learned positions (all ≤ 0.017, no
+effect). At this data size the centre architecture is already close to the
+best available, and the next gains would come from more data or
+regularisation rather than a different shape.
 
 ---
 

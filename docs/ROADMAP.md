@@ -148,14 +148,21 @@ Study notes: [`07_real_training.md`](07_real_training.md)
 
 ---
 
-## Phase 8: Experiments and report (endterm)
+## Phase 8: Experiments and report (endterm) ✅
 
-| Exp | Variable | Values |
-|-----|----------|--------|
-| A | Layers | 2 / 4 / 6 |
-| B | Heads | 2 / 4 / 8 |
-| C | Context | 64 / 128 / 256 / 512 |
-| D | Positional encoding | sinusoidal vs learned |
-| E | Model size | ~1M / ~5M / ~10–30M params |
+| Exp | Variable | Values | 3-seed result (val bits/char; centre 2.225 ± 0.018) |
+|-----|----------|--------|--------|
+| A | Layers | 2 / **4** / 6 | 2.273 / 2.225 / 2.210: 2 layers worse, 6 no clear gain |
+| B | Heads | 2 / **4** / 8 | 2.208 / 2.225 / 2.225: no effect |
+| C | Context | 64 / **128** / 256 / 512 | 2.219 / 2.225 / 2.252 / 2.312: 512 clearly worse |
+| D | Positional encoding | **sinusoidal** vs learned | 2.225 / 2.216: tie (with √D) |
+| E | Model size | **0.23M** / 0.86M / 3.3M / 10.8M params | finals 2.225 / 2.299 / 2.599 / 3.075: overfitting; best periodic within 0.04 |
 
-Also: attention heatmaps, error analysis, reproducible configs.
+- Seed-noise study first (3 seeds per cheap config) ✅
+- Design fix found by it: token embeddings × √D with sinusoidal positions (2.583 → 2.225 bits/char, seed std 4.5× lower) ✅
+- Attention analysis: heatmaps, per-head distance / prev-token / sink / entropy, loss vs context ✅
+- Error analysis: loss by token kind / frequency / speaker names, calibration ✅
+- Reproducible configs: restartable grid runner, `docs/REPRODUCE.md`, environment in every summary ✅
+- Report: [`reports/REPORT.md`](../reports/REPORT.md) ✅
+
+Study notes: [`08_experiments.md`](08_experiments.md)
