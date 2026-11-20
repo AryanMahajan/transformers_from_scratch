@@ -1,0 +1,118 @@
+{
+  "run": "model_size/d384_n6",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 384,
+    "n_heads": 12,
+    "n_layers": 6,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.0006,
+    "min_lr": 5.9999999999999995e-05,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 10841856,
+  "steps": 3000,
+  "seconds_this_session": 880.6,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 15647.11552237516,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 0.4377895259857178,
+    "val_loss": 4.406128849983215,
+    "val_bpc": 3.0746277391331693,
+    "val_perplexity_per_token": 81.9516017114697,
+    "val_perplexity_per_char": 8.424714164929494,
+    "generalisation_gap": 3.9683393239974976
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.376705431938172,
+      3.4864169716835023,
+      2.9552767753601072,
+      2.6363084077835084,
+      2.3534149169921874,
+      2.07014599442482,
+      1.715328872203827,
+      1.3192231416702271,
+      0.9969228655099869,
+      0.7748797684907913,
+      0.6010873287916183,
+      0.5032286360859871,
+      0.45114379525184634
+    ],
+    "val_loss": [
+      6.364579486846924,
+      3.6602005481719972,
+      3.316070854663849,
+      3.177100968360901,
+      3.188784694671631,
+      3.237331676483154,
+      3.4249255299568175,
+      3.615414357185364,
+      3.8135736107826235,
+      4.047635424137115,
+      4.164683437347412,
+      4.321778082847596,
+      4.4556666851043705
+    ]
+  },
+  "best_periodic_val": {
+    "step": 750,
+    "val_loss": 3.177100968360901,
+    "val_bpc": 2.217003428618864
+  },
+  "sample_greedy": "ROMEO:\nAt the devil temple makes; but I tell you,\n'Tis not the face of it.\n\nBENVOLIO:\nWhy, what is that?\n\nMERCUTIO:\nNay, then then then then by this women\n'longs: 'tis a good spirit to be a\nmy princess; and to to toil, in age to tell the\ndial, and fast, and with all men in request, of\nmy prince, I am sure, doing it to myself.\n\nClown:\nAy, by a worthy child, and obstitiously,\nEven in the chair of strokes, and I am sorrow,\nAs ever sact o' the infant of a stage,\nOr so devoted as my assistance,\nThough uplike to an oath.\n\nShepherd:\nI'll tell you what; bid meanly what we can,\nWhere that name was, but encounter of ourselves\nIs through all reasons, we should have he"
+}
