@@ -1,0 +1,118 @@
+{
+  "run": "heads/h2_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 2,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 145.5,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 87910.75848561025,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.761286232471466,
+    "val_loss": 3.17378714799881,
+    "val_bpc": 2.214691021434533,
+    "val_perplexity_per_token": 23.89781776819848,
+    "val_perplexity_per_char": 4.641821423218611,
+    "generalisation_gap": 0.4125009155273438
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.257081151008606,
+      4.154138541221618,
+      3.626371645927429,
+      3.370150887966156,
+      3.205567991733551,
+      3.0632697463035585,
+      3.0219711899757384,
+      2.9240498781204223,
+      2.8668562293052675,
+      2.806827199459076,
+      2.7708355665206907,
+      2.7801313519477846,
+      2.7912502765655516
+    ],
+    "val_loss": [
+      6.2543052434921265,
+      4.190282845497132,
+      3.773353028297424,
+      3.565372276306152,
+      3.448737287521362,
+      3.3474788665771484,
+      3.33189936876297,
+      3.289917528629303,
+      3.2456686973571776,
+      3.1969943761825563,
+      3.2100685715675352,
+      3.2186668872833253,
+      3.1832501888275146
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.1832501888275146,
+    "val_bpc": 2.221294397962797
+  },
+  "sample_greedy": "ROMEO:\nIt is a prettty, and I am a caitiff,\nAnd I have been a bawd, and I'll beggar,\nAnd I have accused to beggary,\nAnd, as I have been slain, and warrants\nAnd take the crown, and the people of the Duke of York,\nAnd I have been slain to the crown,\nAnd I have been slain, and I'll please you\nThe queen, and I'll tell you, and,\nAnd, as I have been a breath, and war\nAnd breaking to be a bolding, and warrant,\nAnd, as I have been in the crown,\nAnd both the queen, and I'll bear the Tower.\n\nKING HENRY VI:\nIt is the royal clouds, and I'll be adventure\nAnd break the crown, and I'll tell you.\n\nKING EDWARD IV:\nIt is the royal clouds, and"
+}

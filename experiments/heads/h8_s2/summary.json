@@ -1,0 +1,118 @@
+{
+  "run": "heads/h8_s2",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 8,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 2
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 196.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 66491.62314432178,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.765564501285553,
+    "val_loss": 3.1940143847465516,
+    "val_bpc": 2.228805729675727,
+    "val_perplexity_per_token": 24.38612650534849,
+    "val_perplexity_per_char": 4.687457888833155,
+    "generalisation_gap": 0.42844988346099866
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.25708110332489,
+      4.125455904006958,
+      3.6285955190658568,
+      3.3951072216033937,
+      3.246640372276306,
+      3.0835842967033384,
+      3.031374478340149,
+      2.9292454719543457,
+      2.872435510158539,
+      2.8111605644226074,
+      2.777983570098877,
+      2.784810280799866,
+      2.7930988550186155
+    ],
+    "val_loss": [
+      6.254305171966553,
+      4.17101743221283,
+      3.7968564510345457,
+      3.6012367248535155,
+      3.506242108345032,
+      3.380323040485382,
+      3.364234447479248,
+      3.306464946269989,
+      3.267504799365997,
+      3.2140419363975523,
+      3.2287973046302794,
+      3.243217349052429,
+      3.2051655888557433
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.2051655888557433,
+    "val_bpc": 2.236587118429028
+  },
+  "sample_greedy": "ROMEO:\nI am a pretty, and I'll tell thee,\nAnd I am appearful slave, and I'll take\nIt is a purpose.\n\nMENENIUS:\nI'll have a party,\nI'll tell him, and I'll tell thee, and I'll not\nIs not been.\n\nMENENIUS:\nI'll have advised,\nI'll tell you, sir, sir, sir, sir, sir, sir, sir,\nI'll have been a greater.\n\nMENENIUS:\nI'll have been, sir, sir, sir, sir, sir, sir,\nI'll have been a man, and you have been\ntter, and being to the people.\n\nMENENIUS:\nI'll have advock'd, sir, sir, sir, sir, sir,\nI'll have a man, sir, I'll tell you, sir, sir, sir,\nI'll have a man, sir, I'll tell you, sir,\nI'll have a man, and you have been a man.\n\n\nMENENIUS:\nI'll have been, sir, sir, sir, sir, sir,\nI'll have"
+}

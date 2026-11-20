@@ -1,0 +1,118 @@
+{
+  "run": "heads/h2_s1",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 2,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 1
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 147.7,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 86676.66184050655,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.741806309223175,
+    "val_loss": 3.1729444575309755,
+    "val_bpc": 2.2141029860919175,
+    "val_perplexity_per_token": 23.8776877878257,
+    "val_perplexity_per_char": 4.639929825359993,
+    "generalisation_gap": 0.4311381483078005
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.2469165325164795,
+      4.070233011245728,
+      3.622143769264221,
+      3.3946373224258424,
+      3.220184803009033,
+      3.0902755498886108,
+      2.9917169570922852,
+      2.8826910138130186,
+      2.862382173538208,
+      2.8236868619918822,
+      2.7642611622810365,
+      2.75453234910965,
+      2.744767427444458
+    ],
+    "val_loss": [
+      6.243682718276977,
+      4.108049583435059,
+      3.8087483167648317,
+      3.618550992012024,
+      3.4620022892951967,
+      3.3747397780418398,
+      3.341118943691254,
+      3.23184597492218,
+      3.2272743821144103,
+      3.22004474401474,
+      3.2025564670562745,
+      3.182211136817932,
+      3.1821329951286317
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.1821329951286317,
+    "val_bpc": 2.2205148123325253
+  },
+  "sample_greedy": "ROMEO:\nI'll please your grace.\n\nPAULINA:\nIt is a word.\n\nPOLIXENES:\nNay, sir, sir, sir, sir, sir,\nI'll be advise.\n\nAUTOLYCUS:\nI know you, sir, sir, sir, sir, sir, sir, sir,\nthe calls, I have been a part of you.\n\nAUTOLYCUS:\nAy, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir, sir,\nwould not be a parthecchery.\n\nAUTOLYCUS:\nAll I have been a parthecchery.\n\nAUTOLYCUS:\nI have been a parthechery.\n\nAUTOLYCUS:\nI have been a prettty, sir, sir,\nI'll not be a parthecused: I have nothing\nthey, sir, and, and being fearful, and,\nthey of the city, and the people, and the very\nsperate, and I have be"
+}
