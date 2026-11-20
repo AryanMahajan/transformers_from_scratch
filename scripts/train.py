@@ -32,6 +32,7 @@ from src.training.baselines import bigram_loss, bpc, perplexity, unigram_loss  #
 from src.training.checkpoint import load_trainer  # noqa: E402
 from src.training.trainer import Trainer, TrainConfig, estimate_loss  # noqa: E402
 from src.transformer.model import GPT, GPTConfig  # noqa: E402
+from src.utils.environment import environment  # noqa: E402
 
 DATA = ROOT / "data" / "processed"
 TOKENIZER = ROOT / "data" / "tokenizer" / "char_tinyshakespeare.json"
@@ -146,7 +147,8 @@ def main(argv=None) -> dict:
     plot(hist, refs, out / "loss_curve.png",
          f"{a.run}: {model.num_parameters():,} params, {a.tokenizer} (V={V}) Tiny Shakespeare")
     summary = {
-        "run": a.run, "device": trainer.device, "model": model.cfg.to_dict(), "train": cfg.to_dict(),
+        "run": a.run, "device": trainer.device, "environment": environment(a.device),
+        "model": model.cfg.to_dict(), "train": cfg.to_dict(),
         "n_params": model.num_parameters(), "steps": trainer.step,
         "seconds_this_session": round(seconds, 1),
         "tokens_seen": trainer.step * cfg.batch_size * cfg.block_size,

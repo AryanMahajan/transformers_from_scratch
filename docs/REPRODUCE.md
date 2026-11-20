@@ -72,7 +72,7 @@ fixed, non-overlapping validation windows (no sampling).
 | path | contents |
 |---|---|
 | `checkpoints/<run>/latest.npz` | weights, optimiser state, RNG state, configs, tokenizer (not in git: large) |
-| `experiments/<run>/summary.json` | config, final + periodic evals, best periodic val, baselines, a greedy sample |
+| `experiments/<run>/summary.json` | config, final + periodic evals, best periodic val, baselines, a greedy sample; from Phase 8 step 4b on also `environment`: git commit (+ whether the tree had uncommitted changes), Python / NumPy / CuPy versions, GPU name |
 | `experiments/<run>/loss_curve.png` | train/val curves of that run |
 | `experiments/attention/`, `experiments/error_analysis/` | Phase 8 analysis outputs (`stats.md`, `report.md`) |
 | `reports/figures/` | every figure used in the notes |
