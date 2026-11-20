@@ -27,7 +27,7 @@ attempt at a state-of-the-art LLM.
 | 5 | Transformer (FFN, block, stack, LM head) + gradient checks | ✅ done |
 | 6 | Optimizer + training loop + **tiny-dataset overfit** (midterm gate) | ✅ done |
 | 7 | Real corpus, checkpointing, generation (temperature/top-k/top-p), BPE, evaluation | ✅ done |
-| 8 | Experiments A–E, attention visualisation, report | ⏳ next |
+| 8 | Experiments A–E, attention analysis, error analysis, report | ⏳ in progress |
 
 [`docs/ROADMAP.md`](docs/ROADMAP.md) has the full plan and the exit
 criteria for each phase.
@@ -73,6 +73,7 @@ src/
   optim/        Adam / AdamW
   training/     dataset batching, trainer, checkpointing
   generation/   autoregressive sampling
+  analysis/     attention statistics, error analysis
   utils/        numerical helpers (gradient checking), logging
 tests/          pytest suite (shapes, numerics, gradients, causality, serialization)
 docs/           per-phase learning notes and derivations
@@ -84,6 +85,7 @@ reports/        figures and write-ups
 ## Documentation
 
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): phases, checkpoints, exit criteria
+- [`docs/REPRODUCE.md`](docs/REPRODUCE.md): the exact command behind every reported number and figure
 - [`TECHNICAL_DOC.md`](TECHNICAL_DOC.md): architecture, conventions, shapes, design decisions
 - [`docs/`](docs/): one learning note per phase covering the maths, derivations, shapes, pitfalls, and tests
 - [`papers/README.md`](papers/README.md): reading list and reading order
