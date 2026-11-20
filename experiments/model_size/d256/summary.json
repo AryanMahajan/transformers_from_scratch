@@ -1,0 +1,118 @@
+{
+  "run": "model_size/d256",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 256,
+    "n_heads": 8,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.001,
+    "min_lr": 0.0001,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 3289600,
+  "steps": 3000,
+  "seconds_this_session": 378.0,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 34164.05350959451,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 1.2778236615657805,
+    "val_loss": 3.723981673717499,
+    "val_bpc": 2.5986206359078685,
+    "val_perplexity_per_token": 41.42902299385595,
+    "val_perplexity_per_char": 6.05707231571558,
+    "generalisation_gap": 2.4461580121517184
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.245545196533203,
+      3.595969593524933,
+      3.083334410190582,
+      2.78550271987915,
+      2.5700905680656434,
+      2.388262188434601,
+      2.212700164318085,
+      1.962134486436844,
+      1.7502697467803956,
+      1.5982927978038788,
+      1.450194376707077,
+      1.353133249282837,
+      1.3050554394721985
+    ],
+    "val_loss": [
+      6.235655426979065,
+      3.7558915615081787,
+      3.401280164718628,
+      3.221071493625641,
+      3.170622932910919,
+      3.1450826048851015,
+      3.243524467945099,
+      3.3100383639335633,
+      3.3903325319290163,
+      3.5303581953048706,
+      3.580242228507996,
+      3.6789327025413514,
+      3.775481033325195
+    ]
+  },
+  "best_periodic_val": {
+    "step": 1250,
+    "val_loss": 3.1450826048851015,
+    "val_bpc": 2.1946607891146384
+  },
+  "sample_greedy": "ROMEO:\nStay, be gone; I know not how I am:\n\nAll:\nI'll tell't.\n\nMENENIUS:\nI'll tell thee thee thee, fellow.\n\nCORIOLANUS:\nI would they were born to to put them,\nTo dim 't: they have done, but in the voice,\nFor I have of thee, they cannot do't't.\n\nMENENIUS:\nI am hunger than a horse.\n\nCOMINIUS:\nI giveive you, my lords, and you'ld believe\nA bawd.\n\nCORIOLANUS:\nI am out of business.\n\nMENENIUS:\nNow, good sir, the gods forbid!\n\nCORIOLANUS:\nOn,\nI had forgot my pride,\nAnd I am content to leave of it.\n\nCORIOLANUS:\nI pray thee, tell me, get thee home to part\nTo think the privilege of my face.\n\nCORIOLANUS:\nI have obedient to that,\nThat lately"
+}

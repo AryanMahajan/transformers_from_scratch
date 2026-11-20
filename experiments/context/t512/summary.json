@@ -1,0 +1,118 @@
+{
+  "run": "context/t512",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 512,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 8,
+    "block_size": 512,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 232576,
+  "steps": 3000,
+  "seconds_this_session": 26.3,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 51996.511482086134,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.9175223755836486,
+    "val_loss": 3.2655112767219543,
+    "val_bpc": 2.278696764371686,
+    "val_perplexity_per_token": 26.19349969452536,
+    "val_perplexity_per_char": 4.852394224000906,
+    "generalisation_gap": 0.3479889011383057
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.24803581237793,
+      4.3673676490783695,
+      3.83473961353302,
+      3.6226473808288575,
+      3.4859471797943113,
+      3.34974091053009,
+      3.2717591285705567,
+      3.163470149040222,
+      3.0929675102233887,
+      2.998778593540192,
+      2.956046938896179,
+      2.951940178871155,
+      2.9127869486808775
+    ],
+    "val_loss": [
+      6.2452226161956785,
+      4.339467692375183,
+      4.026841115951538,
+      3.8245349764823913,
+      3.7478888511657713,
+      3.6110997438430785,
+      3.483016777038574,
+      3.396849203109741,
+      3.364492726325989,
+      3.301211583614349,
+      3.3021397471427916,
+      3.3228008151054382,
+      3.2361730575561523
+    ]
+  },
+  "best_periodic_val": {
+    "step": 3000,
+    "val_loss": 3.2361730575561523,
+    "val_bpc": 2.258224348440344
+  },
+  "sample_greedy": "ROMEO:\nNo, my lord, my lord, my lord,\nIt is the way, and my soul,\nAnd, I'll be give me, and I'll be gone.\n\nJULIET:\nI am a word, I'll be gone.\n\nJULIET:\nI am a word, I'll be give\nAnd tell me to the queen, and I'll be\nAnd take the souls of wrong.\n\nJULIET:\nIt is the way, I'll be gone.\n\nJULIET:\nIt is the way, I'll be give\nAnd take the queen, and I'll be give\nAnd tell me to be a word, and take,\nAnd I am away.\n\nJULIET:\nIt is the gentleman, and I'll be.\n\nJULIET:\nIt is the way, and I am a word,\nAnd tell me, and I am a word,\nAnd, I am a words, and take,\nAnd, I am a words, and I'll be give\nAnd tell me, and I am a word,\nAnd I am a word, and I"
+}

@@ -1,0 +1,118 @@
+{
+  "run": "model_size/d128",
+  "device": "gpu",
+  "model": {
+    "vocab_size": 512,
+    "d_model": 128,
+    "n_heads": 4,
+    "n_layers": 4,
+    "max_len": 128,
+    "d_ff": null,
+    "pos": "sinusoidal",
+    "tie_weights": true,
+    "scale_emb": true
+  },
+  "train": {
+    "max_steps": 3000,
+    "batch_size": 32,
+    "block_size": 128,
+    "max_lr": 0.003,
+    "min_lr": 0.00030000000000000003,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "eval_interval": 250,
+    "eval_iters": 20,
+    "log_interval": 10,
+    "ckpt_interval": 250,
+    "seed": 0
+  },
+  "n_params": 858368,
+  "steps": 3000,
+  "seconds_this_session": 294.6,
+  "tokens_seen": 12288000,
+  "median_tokens_per_sec": 56978.27019706764,
+  "tokenizer": {
+    "type": "bpe",
+    "vocab_size": 512,
+    "val_chars_per_token": 2.067469879518072
+  },
+  "final": {
+    "train_loss": 2.1253469550609587,
+    "val_loss": 3.276259016990662,
+    "val_bpc": 2.286196613215937,
+    "val_perplexity_per_token": 26.476538917421742,
+    "val_perplexity_per_char": 4.877685071182239,
+    "generalisation_gap": 1.150912061929703
+  },
+  "baselines_val": {
+    "uniform ln V": {
+      "nats": 6.238324625039508,
+      "bpc": 4.353146853146853,
+      "perplexity": 511.99999999999994
+    },
+    "unigram": {
+      "nats": 5.452431937008983,
+      "bpc": 3.8047454012442867,
+      "perplexity": 233.32490796664547
+    },
+    "bigram": {
+      "nats": 3.8280038493418482,
+      "bpc": 2.671208042574568,
+      "perplexity": 45.97068217796661
+    }
+  },
+  "evals": {
+    "step": [
+      0,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "train_loss": [
+      6.244937682151795,
+      3.770988571643829,
+      3.2218891263008116,
+      2.9625691294670107,
+      2.802344524860382,
+      2.6974775075912474,
+      2.6139039516448976,
+      2.4866557836532595,
+      2.3829638600349425,
+      2.3056843280792236,
+      2.2127481341362,
+      2.1585309386253355,
+      2.1599969267845154
+    ],
+    "val_loss": [
+      6.240670800209045,
+      3.921021008491516,
+      3.512894535064697,
+      3.3273022532463075,
+      3.279310095310211,
+      3.1937529325485228,
+      3.2059712529182436,
+      3.173624634742737,
+      3.173294258117676,
+      3.2297054171562194,
+      3.212178635597229,
+      3.2682633876800535,
+      3.31625839471817
+    ]
+  },
+  "best_periodic_val": {
+    "step": 2000,
+    "val_loss": 3.173294258117676,
+    "val_bpc": 2.2143470794045856
+  },
+  "sample_greedy": "ROMEO:\nIt is a gentleman,\nAnd I'll be accompany.\n\nMERCUTIO:\nAlas, my lord, I'll bear thee: I'll bear a\nfoot of what is noise.\n\nROMEO:\nIt is a gentleman, and I am after to\nto-morrow.\n\nMERCUTIO:\nNay, sir, I am a strange.\n\nROMEO:\nIt is a silver: I'll bear advise.\n\nMERCUTIO:\nNay, sir, I'll not be a little more.\n\nROMEO:\nIt is a woman's word.\n\nROMEO:\nIt is as lighted.\n\nMERCUTIO:\nNay, I will not be gone.\n\nROMEO:\nIt is a word.\n\nMERCUTIO:\nNay, my lord, I'll bear thee: I'll bear a bawd\nwhen, by the penitent of a maid, and a bawd\nhim.\n\nROMEO:\nIt is as he, my master"
+}
