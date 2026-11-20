@@ -141,6 +141,136 @@ carried the handicap. The grid was **rerun around the fixed centre**
 
 ---
 
+## 3. Inside the model: what the attention heads do: `src/analysis/attention_stats.py`, `scripts/attention_viz.py`
+
+### Purpose
+Loss numbers say *how well* a model predicts, not *how*. Every
+`MultiHeadAttention` keeps its last attention map `attn_weights` `[B, H, T, T]`
+(row $i$ = how query $i$ spreads its weight over keys $j \le i$). Reading these
+maps answers two questions: what does each head look at, and why did a
+longer context (Exp C) make the model *worse*?
+
+### Per-head statistics
+All are averaged over the batch and over queries $i \ge 1$ (query 0 can only
+attend to itself, so it carries no information):
+
+| statistic | formula | reads as |
+|---|---|---|
+| mean distance | $\sum_j A_{ij}(i-j)$ | how far back the head looks; uniform attention gives $i/2$ (≈ $T/4$ averaged) |
+| previous-token weight | $A_{i,i-1}$ | ≈ 1 for a "look at the last token" head |
+| first-token weight | $A_{i,0}$ | an *attention sink*: parking unused weight on token 0 |
+| normalised entropy | $H_i / \ln(i+1)$, $H_i = -\sum_j A_{ij}\ln A_{ij}$ | 0 = one key, 1 = uniform over all allowed keys |
+| mass beyond $d$ | $\sum_{j \le i-d} A_{ij}$ over $i \ge d$ | share of weight on keys ≥ d tokens back |
+| reach CDF | $\sum_{j \ge i-d} A_{ij}$ over late queries $i \ge T/2$ | share within distance d; late queries all have ≥ T/2 history, so windows of different T compare fairly |
+
+Dividing the entropy by $\ln(i+1)$ matters: a uniform row over $i+1$ keys has
+entropy $\ln(i+1)$, which grows with $i$, so raw entropy would mostly measure
+the position, not the head.
+
+Tests (`tests/test_attention_stats.py`) use hand-built heads with known
+answers: a previous-token head (distance 1, entropy 0), a sink head, and the
+uniform causal head (entropy exactly 1, distance $i/2$), plus a real model's
+maps (rows sum to 1, zero above the diagonal, ≈ uniform at init).
+
+### The centre model (T = 128), 421 validation windows
+Figures: `reports/figures/attention_pe_scale_sin_scaled_s0_heatmaps.png`
+(every layer × head on "GREMIO:↵Good morrow, neighbour Baptista") and
+`..._stats.png`.
+
+| layer | mean distance (h0–h3) | prev-token | norm. entropy |
+|---|---|---|---|
+| 0 | 2.0 / 6.7 / 21.8 / 2.1 | 0.41 / 0.11 / 0.05 / 0.33 | 0.32 / 0.63 / 0.82 / 0.31 |
+| 1 | 7.2 / 14.8 / 10.1 / 12.1 | 0.15 / 0.08 / 0.12 / 0.09 | 0.58 / 0.60 / 0.49 / 0.53 |
+| 2 | 9.3 / 16.2 / 11.0 / 14.7 | 0.13 / 0.05 / 0.12 / 0.06 | 0.54 / 0.59 / 0.63 / 0.61 |
+| 3 | 13.8 / 11.3 / 15.3 / 17.2 | 0.09 / 0.09 / 0.11 / 0.07 | 0.67 / 0.51 / 0.61 / 0.72 |
+
+(Uniform attention would give mean distance 32 and entropy 1.)
+
+- **Layer 0 specialises sharply.** h0 and h3 are local (distance ≈ 2, entropy
+  ≈ 0.3). In the heatmap, **h3 attends to the first piece of the current
+  word**: on every piece of `·B|a|pt|is|t|a` it looks at `·B`, on `or|row`
+  at `·m`. BPE cut the word into pieces, and this head puts it back together.
+  h0 is a previous-token / local head; h2 is broad (entropy 0.82), a cheap
+  "summary of the recent past".
+- **Higher layers look further** (mean distance 7 → 17) but stay well below
+  uniform: they are local-to-mid-range. Several of them lock onto the
+  speaker line (`IO`, `:`, `↵`): a structural anchor for *who is speaking*.
+- **No attention sinks** at this scale: first-token weight is 0.01–0.02
+  everywhere. Sinks are reported in large models; this one doesn't need a
+  parking spot.
+- Only 4% of attention reaches ≥ 64 tokens back.
+
+### Why longer context hurt (Exp C)
+Seed 0: T = 64 / 128 / 256 / 512 gave 2.226 / 2.225 / 2.249 / 2.279 bits/char.
+Two measurements (figures `attention_distance.png`, `attention_position_loss.png`):
+
+**1. Longer windows look much further back.** Upper layers (1–3):
+
+| T | mean distance | uniform would be | mass ≥ 64 back | norm. entropy |
+|---|---|---|---|---|
+| 64 | 2.7–8.1 | 16 | n/a | 0.44–0.61 |
+| 128 | 7–17 | 32 | 0.03–0.05 | 0.49–0.72 |
+| 256 | 22–59 | 64 | 0.31–0.48 | 0.30–0.81 |
+| 512 | 99–127 | 128 | 0.64–0.68 | 0.50–0.85 |
+
+Mean distance grows roughly in proportion to T, reaching the uniform value at
+T = 512, even though several of those heads are fairly sharp (entropy ≈ 0.5).
+So they aren't spreading weight evenly; they pick specific tokens *far away*.
+That fits heads that are mostly **content-addressed** ("find tokens like
+this one") with only a weak recency bias: the longer the window, the more of
+the matches lie far back. Layer 0 stays local at every T.
+
+**2. That far-reaching attention buys almost nothing.** Validation loss
+binned by how many tokens of context the prediction had (SE across windows):
+
+| context (tokens) | T = 64 | T = 128 | T = 256 | T = 512 |
+|---|---|---|---|---|
+| 1–2 | 2.81 | 2.95 | 2.96 | 3.19 |
+| 4–8 | 2.24 | 2.35 | 2.30 | 2.44 |
+| 16–32 | 2.23 | 2.25 | 2.29 | 2.33 |
+| 32–64 | **2.20** | 2.22 | 2.27 | 2.26 |
+| 64–128 | | 2.23 | 2.25 | 2.28 |
+| 128–256 | | | 2.24 | 2.26 |
+| 256–512 | | | | 2.29 |
+
+(SE ≈ 0.02–0.04 per bin for 32+ tokens.)
+
+- **Within every model, loss stops improving after ~32–64 tokens** of context
+  (≈ 65–130 characters, about one or two lines of verse). Beyond that the
+  curves are flat within noise.
+- **At the same context, longer-window models are worse**: in nearly every
+  bin the order is T = 64 ≤ 128 ≤ 256 ≤ 512. Per-bin differences are only
+  1–2 SE, but the order is consistent across bins and matches the overall
+  validation numbers, which come from the same text.
+- So the long models aren't hurt by *seeing* more; they are simply worse
+  models, even when predicting from short context.
+
+**Interpretation (hypotheses, not proven here).** At fixed 4096 tokens/step,
+T = 512 means a batch of only 8 windows instead of 32. The tokens per step are
+equal, but tokens inside one window are strongly correlated, so the gradient
+averages over fewer *independent* samples. The model also has to learn
+behaviour for 512 positions with the same budget, and its upper heads spend
+weight on distant tokens that carry little information for next-token
+prediction on this data. Separating these would need e.g. T = 512 with a
+batch of 32 (4× the tokens, so a different budget); not run.
+
+**Takeaway.** For Tiny Shakespeare at this scale, the useful context is about
+one to two lines. A longer window costs training efficiency and is not repaid.
+Attention maps *showed* the cause (far-reaching heads); the loss-by-position
+curve *measured* that the reach was useless. Neither alone would have been
+convincing.
+
+### Pitfalls met while building this
+- `distance_profile` first included query 0 at distance 0 while every other
+  statistic excluded it. A hand-built test caught the 0.1 mismatch.
+- The first "share within distance d" curve normalised a profile whose entries
+  were averaged over *different* query sets, so it was not a true CDF.
+  Replaced by `reach_cdf`, which accumulates each query's own distribution.
+- Per-position loss is far too noisy at a few hundred windows (± 0.1).
+  Log-spaced bins with standard errors made it readable.
+
+---
+
 ## Self-check questions
 1. Why change one variable at a time? What would a run that changed depth and width together tell you?
 2. Why run extra seeds before the experiments? How do you decide whether a difference is real?
@@ -152,3 +282,11 @@ carried the handicap. The grid was **rerun around the fixed centre**
 8. Derive the backward pass of $h = \sqrt D\, e + p$ with respect to $e$. What would a missing factor do to training?
 9. Why did fixing the scale also shrink the seed-to-seed variance?
 10. The gradient checks all passed with the handicap in place. Why couldn't they find it?
+11. Why exclude query 0 from every attention statistic?
+12. Why normalise entropy by $\ln(i+1)$? What would raw entropy averaged over positions measure instead?
+13. What mean distance and normalised entropy does uniform causal attention give? A pure previous-token head?
+14. How can a head have entropy ≈ 0.5 and still a mean distance near the uniform value? What does that say about how it chooses keys?
+15. Why does the reach CDF use only queries $i \ge T/2$ when comparing models with different T?
+16. The T = 512 model looks much further back but is worse. Which measurement shows the far attention is not useful, and why is it needed in addition to the attention maps?
+17. Give two reasons a longer window could hurt at a fixed number of tokens per step. What experiment would separate them?
+18. What is an attention sink, and how would you detect one with these statistics?
