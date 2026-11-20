@@ -358,6 +358,16 @@ very expensive.
 
 ---
 
+## 📚 Further reading
+| Topic | Source |
+|---|---|
+| √d_model embedding scale (§2) | Vaswani et al., *Attention Is All You Need* (2017), §3.4: https://arxiv.org/abs/1706.03762 |
+| Attention sinks: large attention on initial tokens (§3) | Xiao et al., *Efficient Streaming Language Models with Attention Sinks* (ICLR 2024): https://arxiv.org/abs/2309.17453 |
+| Calibration of modern networks, temperature scaling (§4) | Guo et al., *On Calibration of Modern Neural Networks* (ICML 2017): https://arxiv.org/abs/1706.04599 |
+| Parameters vs tokens (Exp E) | Hoffmann et al., *Training Compute-Optimal Large Language Models* (2022): https://arxiv.org/abs/2203.15556 |
+
+---
+
 ## Self-check questions
 1. Why change one variable at a time? What would a run that changed depth and width together tell you?
 2. Why run extra seeds before the experiments? How do you decide whether a difference is real?
