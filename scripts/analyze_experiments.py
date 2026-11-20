@@ -185,9 +185,11 @@ def main():
                         fontsize=8, color=INK)
         style(ax, f"{title}: validation loss during training (seed 0)", "step")
         ax.set_xlim(500, 3450)
-        ax.legend(frameon=False, fontsize=8, labelcolor=INK, loc="upper right")
+        # legend below the axes: inside, it can collide with the direct end labels
+        ax.legend(frameon=False, fontsize=8, labelcolor=INK, loc="upper center",
+                  bbox_to_anchor=(0.5, -0.16), ncol=len(rows))
         fig.tight_layout()
-        fig.savefig(FIG / f"{exp}_curves.png", dpi=150, facecolor=SURFACE)
+        fig.savefig(FIG / f"{exp}_curves.png", dpi=150, facecolor=SURFACE, bbox_inches="tight")
         plt.close(fig)
 
     # summary: final val bpc vs the varied quantity, one panel per experiment, seed band around the centre
