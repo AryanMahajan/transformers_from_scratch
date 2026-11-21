@@ -8,14 +8,14 @@ per-phase notes in [`docs/`](../docs/).
 
 ## Abstract
 
-We implement a GPT-style decoder-only Transformer language model using NumPy
-alone: no autograd, no deep-learning framework, no pretrained weights. Every
-forward pass, backward pass and optimiser step is derived by hand and verified
-by finite-difference gradient checks (220 tests). Trained on Tiny Shakespeare,
+I implemented a GPT-style decoder-only Transformer language model using NumPy
+alone: no autograd, no deep-learning framework, no pretrained weights. I
+derived every forward pass, backward pass and optimiser step by hand and
+verified each with finite-difference gradient checks (222 tests). Trained on Tiny Shakespeare,
 a 0.23M-parameter model reaches 2.81 bits per character with a character
 tokenizer and 2.53 with a BPE-512 tokenizer, against 3.58 for a character
-bigram. A controlled study then varies depth, heads, context length,
-positional encoding and width one at a time, with three seeds per
+bigram. I then ran a controlled study that varies depth, heads, context
+length, positional encoding and width one at a time, with three seeds per
 configuration. The study found a design flaw before it found any architectural
 effect: fixed sinusoidal positions were 35× larger than the token embeddings
 at initialisation, which cost 0.36 bits/char and inflated seed variance 4.5×.
@@ -41,12 +41,12 @@ model size) affect its language-modelling behaviour?
 Frameworks hide the parts of a Transformer that are easiest to get subtly
 wrong: the backward pass of attention and LayerNorm, gradient accumulation for
 shared weights, numerical stability of softmax and cross-entropy. Writing them
-by hand makes each one explicit and testable. The cost is speed, so the study
-works at small scale (0.13M–10.8M parameters, 12.3M training tokens per run)
-and puts its effort into measurement quality instead: one variable at a time,
+by hand makes each one explicit and testable. The cost is speed, so I worked
+at small scale (0.13M–10.8M parameters, 12.3M training tokens per run) and put
+my effort into measurement quality instead: one variable at a time,
 multiple seeds, and noise bands on every comparison.
 
-**Contributions.**
+**My contributions.**
 1. A complete, hand-derived implementation with a gradient check for every
    layer and for the full model (§2).
 2. A reproducible training pipeline: AdamW, warmup + cosine schedule, global
@@ -74,8 +74,8 @@ projections scaled by $1/\sqrt{2N}$).
 
 ### 2.2 Backpropagation by hand
 Every module implements `forward` (caching what backward needs) and `backward`
-(accumulating parameter gradients, returning the input gradient). Key
-derivations, each in the notes:
+(accumulating parameter gradients, returning the input gradient). The key
+derivations, each worked out in my notes:
 - **Fused softmax + cross-entropy:** $\partial L/\partial z = p - y$, avoiding
   a V × V Jacobian.
 - **LayerNorm:** the three-term input gradient; two-pass variance, because
@@ -87,7 +87,7 @@ derivations, each in the notes:
 - **Tied embeddings:** the gradient is the sum of the lookup and output-layer
   uses, a consequence of the accumulate-don't-overwrite contract.
 
-One small derived result: the key projection has no bias, because
+One small result I derived: the key projection has no bias, because
 $q\cdot(k+b)$ shifts each score row by a constant that softmax ignores, so the
 bias would receive exactly zero gradient.
 
@@ -105,13 +105,13 @@ bias would receive exactly zero gradient.
 - **GPU backend:** CuPy gradients match CPU gradients to 1e-8 in float64;
   training is ~8× faster on an RTX 3050.
 
-220 tests in total (`pytest`).
+222 tests in total (`pytest`).
 
 ### 2.4 Training
 AdamW (decoupled weight decay 0.1 on matrices only), linear warmup (100 steps)
 then cosine decay from 3e-3 to 3e-4, global-norm clipping at 1.0.
 Checkpoints are single pickle-free `.npz` files including optimiser and RNG
-state, so an interrupted run resumes **bit-identically** (tested with `==`).
+state, so an interrupted run resumes **bit-identically** (I test this with `==`).
 
 ---
 
@@ -122,7 +122,7 @@ vocabulary comes from the training split only.
 
 **Tokenizers.** Character-level (V = 65 + `<unk>`) and BPE (Sennrich et al. 2016)
 with a character base and GPT-2-style pre-tokenisation. BPE-512 compresses the
-validation text to 2.07 characters per token. Losses are reported in **bits
+validation text to 2.07 characters per token. I report losses in **bits
 per character** (nats / ln 2 / chars per token), the only unit that compares
 across tokenizers.
 
@@ -144,7 +144,7 @@ words but only 20 % distinct words (it loops); τ = 1 is 92 % distinct but only
 
 ## 4. A design flaw found by the seed study
 
-The first grid used three seeds for the centre configuration and found a
+My first grid used three seeds for the centre configuration and showed a
 seed standard deviation of 0.077 bits/char, larger than several effects to be
 measured. In the same grid, learned positions beat sinusoidal ones by 0.32
 bits/char, far too large for that choice. Both pointed to one cause.
@@ -168,8 +168,8 @@ $h = \sqrt D\, E[\text{ids}] + PE$, with backward $\partial L/\partial E \mathre
 The scale recovers 0.36 bits/char for sinusoidal positions and does nothing for
 learned ones, as the diagnosis predicts. Seed noise falls 4.5×. With the fix,
 the two position types tie. All gradient checks passed with the flaw in place:
-the code was correct, the design was not. The grid was rerun around the fixed
-centre.
+the code was correct, the design was not. I then reran the grid around the
+fixed centre.
 
 ---
 
@@ -178,14 +178,14 @@ centre.
 **Method.** Centre: BPE-512, D = 64, H = 4, N = 4, T = 128, sinusoidal + √D,
 232,576 parameters. Each experiment changes one variable; every run trains
 3000 steps × 4096 tokens (12.3M tokens). The context experiment keeps tokens
-per step fixed (batch = 4096 / T). Cheap configurations use seeds 0, 1, 2
-(mean ± std); the two largest models are single-seed. The best
-periodic validation loss is recorded alongside the final one, because larger
-models overfit before the end.
+per step fixed (batch = 4096 / T). I ran cheap configurations with seeds 0,
+1, 2 (mean ± std) and the two largest models with a single seed. I record the
+best periodic validation loss alongside the final one, because larger models
+overfit before the end.
 
 How to read a difference: the seed std is σ = 0.018, so the difference of two
-3-seed means has a standard error of ≈ 0.015. Differences above ~0.03 are
-called real, below ~0.015 no effect.
+3-seed means has a standard error of ≈ 0.015. I call differences above ~0.03
+real and those below ~0.015 no effect.
 
 | experiment | values: val bits/char, mean ± std over 3 seeds |
 |---|---|
@@ -229,7 +229,7 @@ called real, below ~0.015 no effect.
 ## 6. What the attention heads do
 
 Each attention layer keeps its map $A \in \mathbb R^{B \times H \times T \times T}$.
-Per head we measure mean attention distance, previous-token weight,
+For each head I measure mean attention distance, previous-token weight,
 first-token weight (attention sinks; Xiao et al. 2024) and entropy normalised
 by $\ln(i+1)$, the entropy of uniform attention over the allowed keys.
 
@@ -258,8 +258,8 @@ need a different token budget.)
 
 ## 7. Where the remaining loss goes
 
-Per-token losses over all 53,467 validation predictions, grouped by the kind
-of target token:
+I grouped the per-token losses over all 53,467 validation predictions by the
+kind of target token:
 
 | target | share of tokens | share of loss | top-1 accuracy |
 |---|---|---|---|
@@ -299,8 +299,8 @@ miscalibrated in this direction (Guo et al. 2017).
 - **Confounds stated, not removed.** The width experiment lowers the learning
   rate for the two largest models; the context experiment changes batch size
   with T, by design.
-- **No regularisation sweep.** Dropout was never implemented, so the large
-  models' overfitting is reported rather than fixed.
+- **No regularisation sweep.** I did not implement dropout, so I report the
+  large models' overfitting rather than fix it.
 - **Validation split shift** (§7) inflates absolute losses by ~0.12 bits/char.
 
 ---
@@ -312,7 +312,7 @@ every gradient derived by hand and verified numerically. The main lessons came
 from measurement rather than architecture. Seed variance exposed a design flaw
 that every correctness test had missed. The fix (one √D factor from a single
 sentence of the original paper) mattered more than any architecture choice in
-the grid. Analysis tools turned surprising results (long context hurting,
+the grid. The analysis tools I built turned surprising results (long context hurting,
 large models doing no better) into explanations: unused attention reach, and
 too few tokens for the parameters.
 
