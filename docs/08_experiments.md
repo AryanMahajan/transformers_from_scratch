@@ -35,7 +35,7 @@ Every experiment changes **one** thing relative to the Phase 7 BPE-512 run:
 - **Seeds first.** Without knowing the run-to-run spread, a 0.01 bpc difference
   could be noise. Differences below ~2 seed-std are reported as "no effect".
 - **What the seeds showed:** the first (unscaled) centre gave 2.527 / 2.671 /
-  2.551 bpc (std 0.077), larger than several effects we want to measure.
+  2.551 bpc (std 0.077), larger than several effects I want to measure.
   Investigating that, plus a suspicious Experiment D result, led to the
   finding in §2. With the fix, seed std is **0.018**. Every cheap config (A–D,
   and D = 128 in E) still runs with **seeds 0, 1, 2** and is reported as

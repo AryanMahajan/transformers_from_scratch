@@ -8,7 +8,7 @@ maps to code you can read alongside it.
 > enough on their own.
 
 **Notation:** $z$ = logits (input), $p$ = probabilities (output),
-$g = \partial L/\partial p$ = upstream gradient, $V$ = size of the axis we
+$g = \partial L/\partial p$ = upstream gradient, $V$ = size of the axis I
 normalise over.
 
 ---
@@ -16,7 +16,7 @@ normalise over.
 ## 1. Softmax (stable): `src/nn/softmax.py::softmax`
 
 ### What it's for
-It turns a vector of real numbers into a probability distribution. In our
+It turns a vector of real numbers into a probability distribution. In my
 model it is used in two places:
 - **Attention:** scores `[B,H,T,T]` → attention weights. Row *i* says how
   much token *i* attends to each token *j*.
@@ -80,7 +80,7 @@ cross-entropy comes out so neatly (§4).
 ## 3. Softmax backward: `src/nn/softmax.py::softmax_backward`
 
 ### What it's for
-In attention, $A = \text{softmax}(S)$. Backprop gives us $dA$, and we need
+In attention, $A = \text{softmax}(S)$. Backprop gives me $dA$, and I need
 $dS$.
 
 ### Jacobian (quotient rule)
@@ -89,7 +89,7 @@ $dS$.
 
 $$J_{ij} = p_i(\delta_{ij} - p_j)\qquad J = \text{diag}(p) - pp^\top$$
 
-### Vector–Jacobian product (what we actually compute)
+### Vector–Jacobian product (what I actually compute)
 
 $$\frac{\partial L}{\partial z_j} = \sum_i g_i p_i(\delta_{ij}-p_j)
 = p_j\big(g_j - \langle g,p\rangle\big)$$
@@ -131,7 +131,7 @@ $$\text{GELU}(x) \approx \tfrac12 x(1+\tanh u),\quad u = \sqrt{2/\pi}\,(x + 0.04
 - $\sqrt{2/\pi}$ makes the slope at 0 match: $\tfrac12\sqrt{2/\pi} = 1/\sqrt{2\pi} = \Phi'(0)$.
 - $0.044715$ is fitted numerically. **Measured max error vs exact: 4.7e-4**
   (at x ≈ 2.7).
-- We use the approximation because NumPy has no vectorised `erf`.
+- I use the approximation because NumPy has no vectorised `erf`.
 
 ### GELU vs ReLU
 | | ReLU | GELU |
@@ -230,7 +230,7 @@ It is the same algebra, but:
 ## 6. Gradient checker: `src/utils/numerical.py`
 
 ### What it's for
-We have no autograd, so every backward is hand-derived. A wrong gradient
+I have no autograd, so every backward is hand-derived. A wrong gradient
 **doesn't crash**: the model just trains badly. The checker computes
 gradients by brute force from the forward pass only, and is the ground truth
 for every layer in Phases 2–5.
@@ -276,7 +276,7 @@ direction escapes the check.
 
 ### Code notes
 - `f` takes **no arguments** and reads `x` by reference. `x` is perturbed **in
-  place** and restored. This is how we'll check a layer's parameters later:
+  place** and restored. This is how I'll check a layer's parameters later:
   nudge `W[i,j]`, rerun the forward, read the loss.
 - Always restore `x[idx] = orig`. A test checks this.
 - `check_vjp` calls `backward` **before** the numeric loop, because the numeric
@@ -286,7 +286,7 @@ direction escapes the check.
 
 ### Gotchas
 - Kinks (ReLU at 0, `max`, `abs`) can fail falsely if $x\pm h$ crosses
-  the kink. GELU is smooth, so we avoid this.
+  the kink. GELU is smooth, so I avoid this.
 - Randomness inside the forward pass (dropout) must be fixed or switched off
   during checks.
 
@@ -333,7 +333,7 @@ is $(n_{in}\sigma^2)^L$.
 Measured second moments for $x\sim\mathcal N(0,1)$: $E[\text{relu}^2] = 0.499$,
 $E[\text{gelu}^2] = 0.425$.
 
-### GPT-2 scheme (what our model will use)
+### GPT-2 scheme (what my model will use)
 - All weights $\mathcal N(0, 0.02^2)$; biases 0; LayerNorm γ = 1, β = 0.
 - **Residual projections** (attn `W_o`, FFN `W_2`): std $= 0.02/\sqrt{2N}$.
   The residual stream is $x_0 + \sum_{k=1}^{2N} f_k$, the variances add

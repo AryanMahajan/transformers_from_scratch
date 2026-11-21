@@ -30,7 +30,7 @@ future keys.
   answer: the train loss → ~0 and generation is garbage.
 - **No nan:** the diagonal is never masked, so every row has a finite max.
   A fully masked row would give `-inf − (-inf) = nan` (Phase 1, Q2).
-- We use a real `-inf`, not `-1e9`, so the weights are exactly 0 (exit
+- I use a real `-inf`, not `-1e9`, so the weights are exactly 0 (exit
   criterion; the test uses `== 0.0`).
 - Implementation: boolean `np.tril` and `np.where(mask, S, -inf)`.
 
@@ -127,7 +127,7 @@ combines.
 - **Why dx is a sum:** x feeds three projections. It's the multivariable
   chain rule again.
 
-### Finding: the key bias is useless (so we removed it)
+### Finding: the key bias is useless (so I removed it)
 The first gradient check failed with rel. err **1.0** on `k_proj.b`. The
 analytic gradient was ~1e-20 and the numeric gradient exactly 0, so the
 relative error of two zeros was meaningless. **The gradient really is 0:**
@@ -164,7 +164,7 @@ Lesson for gradient checking: a relative error of ~1 with **both** gradients
 
 ## 3. Sinusoidal positional encoding: `src/nn/positional.py`
 
-### Why we need positions at all
+### Why I need positions at all
 Attention only sees a **set**: no step in §1–§2 uses the index t. Shuffle the
 input tokens and the outputs shuffle the same way (*permutation
 equivariance*). "dog bites man" and "man bites dog" would look identical.
@@ -216,7 +216,7 @@ rotation idea *inside* attention to q and k.
 
 ### Gotchas
 - **D must be even** (sin/cos pairs). Raises otherwise.
-- **Interleaved vs concatenated:** we interleave (sin at even columns, cos at
+- **Interleaved vs concatenated:** I interleave (sin at even columns, cos at
   odd), like the paper. Some code uses `[sin…, cos…]` halves. Both are fine,
   but you can't mix tables between conventions.
 - **Precision bug caught by the tests:** the first version built the table in

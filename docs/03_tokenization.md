@@ -100,7 +100,7 @@ to `data/processed/meta.json`.
 | Small char Transformers on this data (literature, roughly) | ~1.5 | ~1.0 |
 
 Anything **below 4.77 bpc** means the model is using **context**, not just
-letter frequencies. The gap between the unigram and our model is what the
+letter frequencies. The gap between the unigram and my model is what the
 architecture contributes.
 
 ### Design decisions
@@ -117,7 +117,7 @@ architecture contributes.
 
 ### Robust download
 - `raw.githubusercontent.com` **is blocked on some networks**, including
-  ours: TLS handshake failure. The script falls back to the jsDelivr CDN
+  mine: TLS handshake failure. The script falls back to the jsDelivr CDN
   mirror of the same GitHub file. Tested from a clean state, the SHA matches.
 - It writes to `.part`, checks the expected size, then **renames
   atomically**. A failed download can never leave a truncated file that
@@ -131,7 +131,7 @@ architecture contributes.
 3. Why are nats per token not comparable across tokenizers? Define bpc.
 4. What is the bpc of a uniform model with V = 65?
 5. Why sort the vocabulary?
-6. When does `decode(encode(s)) == s` fail for our char tokenizer?
+6. When does `decode(encode(s)) == s` fail for my char tokenizer?
 7. Why split contiguously rather than randomly? What leakage remains?
 8. Why build the vocab from the training split only?
 9. What do the 6.04 and 4.77 bpc baselines mean? What does beating 4.77 prove?

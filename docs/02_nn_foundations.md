@@ -236,7 +236,7 @@ from **−24 to 16**, and 26 of 64 rows were negative, which means `sqrt` →
 ---
 
 ## Self-check questions
-1. Why does `backward` accumulate into `grad` instead of assigning? Give a concrete case from our model.
+1. Why does `backward` accumulate into `grad` instead of assigning? Give a concrete case from my model.
 2. What goes wrong if `zero_grad()` is forgotten?
 3. Why must `parameters()` dedupe tied weights? What would Adam do otherwise?
 4. Why does `state_dict()` return copies?

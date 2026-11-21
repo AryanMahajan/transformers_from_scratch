@@ -110,7 +110,7 @@ the identity and each block learns a small correction. This is why the
 residual-writing layers get the smaller std.
 
 ### Pre-LN vs post-LN
-| | Post-LN (original 2017) | Pre-LN (GPT-2 onward, ours) |
+| | Post-LN (original 2017) | Pre-LN (GPT-2 onward, mine) |
 |---|---|---|
 | Formula | $\text{LN}(x + f(x))$ | $x + f(\text{LN}(x))$ |
 | Residual path | goes through LN every block | untouched sum |
@@ -160,7 +160,7 @@ Use the same $E\ [V,D]$ for the input lookup and the output projection.
   Wolf 2017; GPT-2 does it).
 - **Gradient = sum of both uses** (multivariable chain rule):
   $$\frac{\partial L}{\partial E} = \underbrace{dlogits^\top h}_{\text{LM head: } [V,D]} + \underbrace{\text{scatter-add of } dh_0 \text{ rows}}_{\text{embedding lookup}}$$
-  Our `Parameter.grad` accumulates with `+=`, so both contributions add
+  My `Parameter.grad` accumulates with `+=`, so both contributions add
   automatically. Phase 2's design pays off here. **Assigning (`=`) in either
   place would silently drop one of them.**
 - The test builds an untied twin with `lm_head.W = Eᵀ`. The two compute the

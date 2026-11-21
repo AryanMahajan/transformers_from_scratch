@@ -1,6 +1,6 @@
 # Roadmap
 
-Every phase ends at a **checkpoint**. We move on only when that phase's
+Every phase ends at a **checkpoint**. I move on only when that phase's
 exit criteria pass and the concepts can be explained without notes.
 
 Each component follows the same loop:

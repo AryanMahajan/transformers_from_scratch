@@ -155,7 +155,7 @@ cosine, 100 warmup steps, weight decay 0.1, clip 1.0; GPU, median
 | | val nats | bits/char | perplexity |
 |---|---|---|---|
 | bigram baseline | 2.482 | 3.58 | 12.0 |
-| **our model (final, 100-batch eval)** | **1.948** | **2.81** | **7.02** |
+| **my model (final, 100-batch eval)** | **1.948** | **2.81** | **7.02** |
 
 Train 1.843 → generalisation gap **0.106**.
 
@@ -189,7 +189,7 @@ continuation in many contexts. This is a known failure of greedy decoding, not
 Generation is sequential (1 token per forward pass, no KV cache):
 **GPU 127 tok/s, CPU 12–40 tok/s**. That's similar to the 40–50 tok/s a 120B
 model decodes on an L40 cluster, but for a model 600,000× smaller. Big models
-are limited by memory bandwidth (reading ~240 GB of weights per token); ours by
+are limited by memory bandwidth (reading ~240 GB of weights per token); mine by
 kernel-launch and Python overhead.
 
 Training throughput (7,800 tok/s) is a different quantity: 4,096 tokens are
@@ -336,7 +336,7 @@ text (tested on the full val set).
 
 ### Character base vs byte base
 GPT-2 starts from the 256 **bytes** of UTF-8, so any text is encodable with
-no `<unk>`. Our corpus is ASCII and val has no unseen characters, so a
+no `<unk>`. My corpus is ASCII and val has no unseen characters, so a
 character base (65 chars + `<unk>`) is smaller and makes tokens directly
 readable. Same algorithm either way.
 
@@ -451,7 +451,7 @@ letters: a decoding problem, not a tokenizer one.
 9. Why is the bigram the key baseline for a Transformer? What does crossing it show?
 10. Why was a 3-D `x @ W` 13× slower than the 2-D version? How was it fixed without changing the maths?
 11. How does the code run on GPU without rewriting every `np.` call? Which calls *did* need changes, and why?
-12. How do we know the GPU backward pass is correct without a GPU gradient check?
+12. How do I know the GPU backward pass is correct without a GPU gradient check?
 13. Why did the train/val gap open late in training? Name two causes.
 14. Why does greedy decoding produce "the the the..." loops?
 15. Training throughput is 7,800 tok/s but generation is 127 tok/s. Why so different?
@@ -465,7 +465,7 @@ letters: a decoding problem, not a tokenizer one.
 23. Why pre-tokenise before BPE? What would go wrong without it?
 24. Why does encoding apply merges in rank order rather than, e.g., longest-match?
 25. How do incremental pair counts avoid recounting the corpus, and how was their correctness verified?
-26. Character base vs byte base: what does each guarantee, and why did we pick characters?
+26. Character base vs byte base: what does each guarantee, and why did I pick characters?
 27. Why does compression (chars/token) grow more slowly as V doubles?
 28. Why can't you compare val loss per token between the char and BPE models? Derive the bits-per-character conversion.
 29. The BPE bigram nearly matches the char Transformer. What does that tell you about where the char model's capacity goes?

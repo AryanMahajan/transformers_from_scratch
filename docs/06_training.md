@@ -258,7 +258,7 @@ before any real training (Karpathy's "overfit one batch").
   be: §3's floor.)
 - Model: D = 64, H = 4, N = 2, max_len = 256, tied, sinusoidal:
   **104,192 parameters**.
-- AdamW lr 3e-3 → 3e-4 cosine, 20 warmup steps, **weight decay 0** (we *want*
+- AdamW lr 3e-3 → 3e-4 cosine, 20 warmup steps, **weight decay 0** (I *want*
   to overfit), clip 1.0, 400 steps.
 
 ### Result
